@@ -1,0 +1,17 @@
+html {
+    background-color: rgb(56, 56, 56);
+}
+
+h1 {
+    margin: 0px;
+    padding: 10px;
+    color: #dadada;
+}
+
+[class*="col-"] {
+    background-color: rgb(56, 56, 56);
+    color: #dadada;
+    border: 2px dotted white;
+    padding: 1rem;
+    /* padding-bottom: 1rem; */
+}
