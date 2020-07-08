@@ -1,0 +1,5 @@
+<td>
+    <form action="/delete/{{result.id}}">
+        <input type="submit" value="❌"/>
+    </form>
+</td>

@@ -10,32 +10,45 @@
 
 
 <div class="content">
-    <div class="container-fluid">
+<div class="container-fluid">
         <div class="row">
-            <div class="col-md-7">col-md-7
-                <form action="/" method="POST">
-                    <input type="text" name="title" id="title">
-                    <input type="submit" value="Add Book">
+            <div class="col-md-7">
+                <form action="/query/" method="POST">
+                    <input id="query" type="text" name="query">
+                    <input id="submitSearch" type="submit" value="Search">
                 </form>
-
-                <form action="/" method="POST">
-                    <input type="button" name="clear" id="clear">
+                <form action="/clear/">
+                    <input id="clearList" type="submit" value="Clear List">
                 </form>
-
-                {% if books|length > 0 %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 <table>
-                    <tr><th>Book Title</th></tr>
-                    {% for book in books %}
-                    <tr>
-                        <td>{{ book.title }}</td>
-                        <td>
-                            <a href="/delete/{{book.id}}">X</a>
-                        </td>
-                    </tr>
+                    <tr><th>Title</th><th>Author</th><th>Page Count</th><th>Publication Date</th></tr>
+                    {% for i in range(40) %}
+                        <tr class="bookRow">
+                            <td>{{ titles[i] }}</td>
+                            <td>{{ authors[i] }}</td>
+                            <td>{{ pages[i] }}</td>
+                            <td>{{ publishDates[i] }}</td>
+                            <td class="volumeID">{{ volumeIDs[i] }}</td>
+                        </tr>
                     {% endfor %}
+                    <script>
+                        $(".volumeID").hide();
+                        $(".bookRow").click(function() {
+                            volumeID = $(this).find($(".volumeID"))[0].innerText
+                            console.log(volumeID);
+                            $.ajax({
+                                type: "POST",
+                                url: '/select_volume/',
+                                data: {volumeID:volumeID},
+                                success: function (data) {}
+                            });
+                        });
+                    </script>
                 </table>
-                {% endif %}
-
             </div>
         </div>
     </div>
