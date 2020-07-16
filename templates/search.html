@@ -10,32 +10,44 @@
 <div class="content">
     <div class="container-fluid">
         <div class="row">
+            <div class="col-md-12-cent">
+                <h1>Bookmark</h1>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-12">
-                <div class="vertcenter">
-                    <h3>Search for a book: </h3>
+                <div class="searchCol">
                     <form id="searchForm" action="/query/" method="POST">
-                        <input id="query" type="text" name="query">
-                        <input id="submitQuery" type="submit" value="Search">
+                        <input id="query" type="text" name="query" placeholder=" Search for a book by title, author, etc.">
                     </form>
                 </div>
             </div>
         </div>
+
         <div class="row">
-            <div class="col-md-7">
-                
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <table>
-                    <tr><th>Title</th><th>Author</th><th>Page Count</th><th>Publication Date</th></tr>
+            <div class="col-md-12-cent-results">
+                <table class="searchResults-cent">
+                    <tr class="bookRow"></tr>
                     {% for i in range(titles|length) %}
                         <tr class="bookRow">
-                            <td>{{ titles[i] }}</td>
-                            <td>{{ authors[i] }}</td>
-                            <td>{{ pages[i] }}</td>
-                            <td>{{ publishDates[i] }}</td>
-                            <td class="volumeID">{{ volumeIDs[i] }}</td>
+                            <td class="thumbnail">
+                                {% if img_url[i] == "" %}
+                                    <img src="https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg" style="max-width:100%;max-height:100%;" />
+                                {% else %}
+                                    <img src="{{img_url[i]}}" />
+                                {% endif %}
+                            </td>
+                            <td class="bookListing">
+                                <table>
+                                    <tr><td class="title"><h3>{{ titles[i] }}</h3></td></tr>
+                                    <tr><td class="author"><h6>{{ authors[i] }}</h6></td></tr>
+                                    {% if pages[i] != "" %}
+                                        <tr><td class="pages">{{ pages[i] }} pages</td></tr>
+                                    {% endif %}
+                                    <tr><td class="publicationDate">Published {{ publishDates[i] }}</td></tr>
+                                    <tr><td class="volumeID">{{ volumeIDs[i] }}</td></tr>
+                                </table>
+                            </td>
                         </tr>
                     {% endfor %}
                     <script>

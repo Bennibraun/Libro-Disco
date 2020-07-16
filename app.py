@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import requests
 import json
+import sys
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///book.db'
@@ -48,6 +49,7 @@ def search():
         if results["totalItems"] == 0:
             return render_template('error.html', msg='Search turned up empty, sorry.')
         else:
+            img_url = []
             titles = []
             authors = []
             pages = []
@@ -55,6 +57,12 @@ def search():
             volumeIDs = []
             for book in results["items"]:
                 info = book["volumeInfo"]
+                try:
+                    images = info["imageLinks"]
+                    # print(images["thumbnail"], file=sys.stderr)
+                    img_url.append(''.join(images["thumbnail"]))
+                except:
+                    img_url.append('')
                 try:
                     titles.append(''.join(info["title"]))
                 except:
@@ -75,7 +83,7 @@ def search():
                     volumeIDs.append(''.join(book["id"]))
                 except:
                     return render_template('index.html')
-            return render_template('search.html', results=results, titles=titles, authors=authors, pages=pages, publishDates=publishDates, volumeIDs=volumeIDs)
+            return render_template('search.html', img_url=img_url, results=results, titles=titles, authors=authors, pages=pages, publishDates=publishDates, volumeIDs=volumeIDs)
     else:
         return render_template('error.html', msg='failed to render search results')
 

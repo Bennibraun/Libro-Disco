@@ -10,24 +10,18 @@ h1 {
     color: #dadada;
 }
 
-
 [class*="col-"] {
     color: #dadada;
-    border: 2px dotted white;
+    /* border: 2px dotted white; */
+    border: none;
     padding: 5px;
 }
 
 [class*="vertcenter"] {
     margin: 0;
-    /* position: absolute; */
+    position: absolute;
     top: 100%;
-    -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-}
-
-form {
-    margin: 0px;
-    display: inline;
 }
 
 table {
@@ -39,3 +33,58 @@ td {
     border: 1px solid white;
     border-collapse: collapse;
 }
+
+.searchCol, #searchForm {
+    display: block;
+    margin: auto;
+    padding-bottom: 10px;
+}
+
+#searchForm {
+    width: 75%;
+}
+
+#query {
+    width: 100%;
+    height: 40px;
+}
+
+#submitQuery {
+    height: 40px;
+    width: 10%;
+}
+
+[class*="cent"] {
+    margin: auto;
+}
+
+[class*="searchResults"] {
+    margin: 0px;
+    width: 100%;
+}
+
+[class*="results"] {
+    width: 75%;
+}
+
+.bookRow + tr:hover {
+    background-color: #18192c;
+}
+
+.bookRow td {
+    border: none;
+}
+
+.thumbnail {
+    max-height: 204px;
+    max-width: 140px;
+    height: 196px;
+    width: 140px;
+}
+
+.bookListing {
+    padding-left: 15px;
+    padding-top: 15px;
+    vertical-align: top;
+}
+
