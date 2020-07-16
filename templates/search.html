@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Bookmark</title>
+{% endblock %}
+
+{% block body %}
+
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="vertcenter">
+                    <h3>Search for a book: </h3>
+                    <form id="searchForm" action="/query/" method="POST">
+                        <input id="query" type="text" name="query">
+                        <input id="submitQuery" type="submit" value="Search">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7">
+                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table>
+                    <tr><th>Title</th><th>Author</th><th>Page Count</th><th>Publication Date</th></tr>
+                    {% for i in range(titles|length) %}
+                        <tr class="bookRow">
+                            <td>{{ titles[i] }}</td>
+                            <td>{{ authors[i] }}</td>
+                            <td>{{ pages[i] }}</td>
+                            <td>{{ publishDates[i] }}</td>
+                            <td class="volumeID">{{ volumeIDs[i] }}</td>
+                        </tr>
+                    {% endfor %}
+                    <script>
+                        $(".volumeID").hide();
+                        $(".bookRow").click(function() {
+                            volumeID = $(this).find($(".volumeID"))[0].innerText;
+                            console.log(volumeID);
+                            $.ajax({
+                                type: "POST",
+                                url: '/select_volume/',
+                                data: {volumeID:volumeID},
+                                success: function (data) {}
+                            });
+                        });
+                    </script>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

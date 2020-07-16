@@ -33,9 +33,8 @@ def index():
             return redirect('/')
         except:
             return 'There was an issue adding the book.'
-    else:
-        books = Book.query.order_by(Book.date_added).all()
-        return render_template('index.html', books=books)
+    books = Book.query.order_by(Book.date_added).all()
+    return render_template('index.html', books=books )
 
 @app.route('/query/', methods=['POST','GET'])
 def search():
@@ -76,9 +75,9 @@ def search():
                     volumeIDs.append(''.join(book["id"]))
                 except:
                     return render_template('index.html')
-            return render_template('index.html', results=results, titles=titles, authors=authors, pages=pages, publishDates=publishDates, volumeIDs=volumeIDs)
+            return render_template('search.html', results=results, titles=titles, authors=authors, pages=pages, publishDates=publishDates, volumeIDs=volumeIDs)
     else:
-        return render_template('errpr.html', msg='failed to render search results')
+        return render_template('error.html', msg='failed to render search results')
 
 @app.route('/select_volume/',methods=['POST'])
 def select_volume():
@@ -96,7 +95,8 @@ def delete(id):
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
-        return redirect('/')
+        # return redirect('/')
+        return render_template('error.html',msg='Error in delete() fn')
     except:
         return 'There was a problem with the deletion'
 
@@ -107,7 +107,8 @@ def clear():
         for book in book_list:
             db.session.delete(book)
         db.session.commit()
-        return redirect('/')
+        # return redirect('/')
+        return render_template('error.html',msg='Error in clear() fn')
     except:
         return 'Clear failed'
 

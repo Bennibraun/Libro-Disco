@@ -1,23 +1,31 @@
-html {
-    background-color: rgb(56, 56, 56);
+
+html, div {
+    background-color: #25274D;
+    padding: 3px;
 }
 
 h1 {
     margin: 0px;
-    padding: 10px;
+    padding: 0px;
     color: #dadada;
 }
 
+
 [class*="col-"] {
-    background-color: rgb(56, 56, 56);
     color: #dadada;
     border: 2px dotted white;
-    padding: 1rem;
-    /* padding-bottom: 1rem; */
+    padding: 5px;
+}
+
+[class*="vertcenter"] {
+    margin: 0;
+    /* position: absolute; */
+    top: 100%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 
 form {
-    width: 30%;
     margin: 0px;
     display: inline;
 }
