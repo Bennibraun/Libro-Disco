@@ -1,0 +1,15 @@
+compile app: python app.py
+
+push to heroku:
+git add .
+git commit -am "msg"
+git push heroku master
+
+push to github repo:
+git add .
+git commit -am "msg"
+git push bookmark master
+
+remote repos:
+heroku (webapp hosting) - heroku create
+bookmark (github repo) git remote add bookmark https://github.com/Bennibraun/Bookmark
