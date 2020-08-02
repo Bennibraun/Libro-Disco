@@ -1,2 +1,0 @@
-run app: python app.py
-push to heroku: git push heroku master
