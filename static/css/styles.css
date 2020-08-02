@@ -37,15 +37,15 @@ td {
 .searchCol, #searchForm {
     display: block;
     margin: auto;
-    padding-bottom: 10px;
+    /* padding-bottom: 10px; */
 }
 
 #searchForm {
-    width: 75%;
+    width: 60%;
 }
 
 #query {
-    width: 100%;
+    width: 70%;
     height: 40px;
 }
 

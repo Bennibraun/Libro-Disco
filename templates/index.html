@@ -11,12 +11,11 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
-                <h1>Ben's Reading Log</h1>
+                <h1>Ben's Books</h1>
             </div>
             <div class="col-md-9">
-                <h3>Search for a book: </h3>
-                <form id="searchForm" action="/query/" method="POST">
-                    <input id="query" type="text" name="query">
+                <form id="searchForm" action="/query/" method="POST" style="float: left;">
+                    <input id="query" type="text" name="query" placeholder=" Search for a book by title, author, etc.">
                     <input id="submitQuery" type="submit" value="Search">
                 </form>
             </div>
