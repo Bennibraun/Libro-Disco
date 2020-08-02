@@ -37,21 +37,21 @@ td {
 .searchCol, #searchForm {
     display: block;
     margin: auto;
-    /* padding-bottom: 10px; */
 }
 
 #searchForm {
-    width: 60%;
+    width: 100%;
+    height: 100%;
 }
 
 #query {
-    width: 70%;
-    height: 40px;
+    width: 80%;
+    height: 100%;
 }
 
 #submitQuery {
-    height: 40px;
-    width: 10%;
+    height: 100%;
+    width: 15%;
 }
 
 [class*="cent"] {
