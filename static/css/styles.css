@@ -15,6 +15,7 @@ h1 {
     /* border: 2px dotted white; */
     border: none;
     padding: 5px;
+    height: 60px;
 }
 
 [class*="vertcenter"] {
@@ -45,13 +46,27 @@ td {
 }
 
 #query {
-    width: 80%;
+    width: 75%;
     height: 100%;
+    padding-left: 10px;
 }
 
 #submitQuery {
     height: 100%;
-    width: 15%;
+    width: 20%;
+}
+
+.listHeaderMenu {
+    border: none;
+    float: left;
+    width: 100%;
+    display: flex;
+}
+
+.listHeader {
+    border: none;
+    border-bottom: 1px solid white;
+    border-top: 1px solid white;
 }
 
 [class*="cent"] {
@@ -73,6 +88,8 @@ td {
 
 .bookRow td {
     border: none;
+    padding-right: 5px;
+    padding-left: 5px;
 }
 
 .thumbnail {
@@ -88,3 +105,8 @@ td {
     vertical-align: top;
 }
 
+th {
+    padding-right: 5px;
+    padding-left: 5px;
+    border-right: 1px solid white;
+}

@@ -10,18 +10,14 @@
 <div class="content">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12-cent">
-                <h1>Bookmark</h1>
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <form id="searchForm" action="/query/" method="POST">
+                    <input id="query" type="text" name="query" placeholder=" Search for a book by title, author, etc.">
+                    <input id="submitQuery" type="submit" value="Search">
+                </form>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="searchCol">
-                    <form id="searchForm" action="/query/" method="POST">
-                        <input id="query" type="text" name="query" placeholder=" Search for a book by title, author, etc.">
-                    </form>
-                </div>
-            </div>
+            <div class="col-md-3"></div>
         </div>
 
         <div class="row">
@@ -54,7 +50,6 @@
                         $(".volumeID").hide();
                         $(".bookRow").click(function() {
                             volumeID = $(this).find($(".volumeID"))[0].innerText;
-                            console.log(volumeID);
                             $.ajax({
                                 type: "POST",
                                 url: '/select_volume/',

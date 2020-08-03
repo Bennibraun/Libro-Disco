@@ -15,12 +15,77 @@
             </div>
             <div class="col-md-6">
                 <form id="searchForm" action="/query/" method="POST" style="float: left;">
-                    <input id="query" type="text" name="query" placeholder=" Search for a book by title, author, etc.">
+                    <input id="query" type="text" name="query" placeholder="Search for a book by title, author, etc.">
                     <input id="submitQuery" type="submit" value="Search">
                 </form>
             </div>
             <div class="col-md-3">
-                Placeholder
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="listHeaderMenu">
+                    <form action="/sort" method="post">
+                        Sort by: 
+                        <input name="sortTitle" value="Title" type="submit">
+                        <input name="sortAuthor" value="Author" type="submit">
+                        <input name="sortPageCount" value="Page Count" type="submit">
+                        <input name="sortPubDate" value="Publication Date" type="submit">
+                        <input name="sortDateAdded" value="Date Added" type="submit">
+                    </form>
+                    <form action="/displayMode" method="post" style="padding-left: 20px;">
+                        <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
+                    </form>
+                </div>
+                {% if showImages %}
+                    <table class="BookLog">
+                        {% for i in range(books|length) %}
+                            <tr class="bookRow">
+                                <td class="thumbnail">
+                                    {% if books[i].img_url == "" %}
+                                        <img src="https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg" style="max-width:100%;max-height:100%;" />
+                                    {% else %}
+                                        <img src="{{ books[i].img_url }}" />
+                                    {% endif %}
+                                </td>
+                                <td class="bookListing">
+                                    <table>
+                                        <tr><td class="title"><h3>{{ books[i].title }}</h3></td></tr>
+                                        <tr><td class="author"><h6>{{ books[i].author }}</h6></td></tr>
+                                        {% if books[i].page_count != "" %}
+                                            <tr><td class="pages">{{ books[i].page_count }} pages</td></tr>
+                                        {% endif %}
+                                        <tr><td class="publicationDate">Published {{ books[i].pub_date }}</td></tr>
+                                        <tr><td class="dateAdded">Added {{ books[i].date_added }}</td></tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <table class="BookLog">
+                        <tr class="listHeader">
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Pages</th>
+                            <th>Publication Date</th>
+                            <th style="border-right: none;">Date Added</th>
+                        </tr>
+                        <tr class="bookRow"></tr>
+
+                        {% for i in range(books|length) %}
+                            <tr class="bookRow">
+                                <td class="title">{{ books[i].title }}</td>
+                                <td class="author">{{ books[i].author }}</td>
+                                {% if books[i].page_count != "" %}
+                                    <td class="pages">{{ books[i].page_count }}</td>
+                                {% endif %}
+                                <td class="publicationDate">{{ books[i].pub_date }}</td>
+                                <td class="dateAdded">{{ books[i].date_added }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -1,41 +1,109 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import date
 import requests
 import json
 import sys
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///book.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///booklog.db'
 db = SQLAlchemy(app)
 
-class Book(db.Model):
+class Booklog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200),nullable=False)
     author = db.Column(db.String(200),nullable=True)
     page_count = db.Column(db.Integer,nullable=True)
     pub_date = db.Column(db.String(15),nullable=True)
     volume_id = db.Column(db.String(15),nullable=True)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    img_url = db.Column(db.String(100),nullable=True)
+    date_added = db.Column(db.Date, default=date.today)
 
     # Called every time a new element is added to the db
     def __repr__(self):
         return '<book %r>' % self.id
 
-@app.route('/', methods=['POST','GET'])
+books = Booklog.query.order_by(Booklog.date_added).all()
+sortAtoZ = True
+showImages = False
+
+@app.route('/')
 def index():
-    # Method inserts the given book title into the db
-    if request.method == 'POST':
-        book_title = request.form['title']
-        new_book = Book(title=book_title)
-        try:
-            db.session.add(new_book)
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'There was an issue adding the book.'
-    books = Book.query.order_by(Book.date_added).all()
-    return render_template('index.html', books=books )
+    return render_template('index.html', books=books, showImages=showImages)
+
+@app.route('/displayMode', methods=['POST'])
+def switchDisplayMode():
+    global showImages
+    global books
+    showImages = not showImages
+    return redirect('/')
+
+@app.route('/sort', methods=['POST'])
+def sort():
+    global books
+    global sortAtoZ
+    try:
+        request.form['sortAuthor']
+        print('sorting by author')
+        books = Booklog.query.order_by(Booklog.author).all()
+        if not sortAtoZ:
+            books.reverse()
+            sortAtoZ = True
+        else:
+            sortAtoZ = False
+        return redirect('/')
+    except:
+        pass
+    try:
+        request.form['sortTitle']
+        print('sorting by title')
+        books = Booklog.query.order_by(Booklog.title).all()
+        if not sortAtoZ:
+            books.reverse()
+            sortAtoZ = True
+        else:
+            sortAtoZ = False
+        return redirect('/')
+    except:
+        pass
+    try:
+        request.form['sortPageCount']
+        print('sorting by page count')
+        books = Booklog.query.order_by(Booklog.page_count).all()
+        if not sortAtoZ:
+            books.reverse()
+            sortAtoZ = True
+        else:
+            sortAtoZ = False
+        return redirect('/')
+    except:
+        pass
+    try:
+        request.form['sortPubDate']
+        print('sorting by publication date')
+        books = Booklog.query.order_by(Booklog.pub_date).all()
+        if not sortAtoZ:
+            books.reverse()
+            sortAtoZ = True
+        else:
+            sortAtoZ = False
+        return redirect('/')
+    except:
+        pass
+    try:
+        request.form['sortDateAdded']
+        print('sorting by date added')
+        books = Booklog.query.order_by(Booklog.date_added).all()
+        if not sortAtoZ:
+            books.reverse()
+            sortAtoZ = True
+        else:
+            sortAtoZ = False
+        return redirect('/')
+    except:
+        pass
+    
+    return redirect('/')
 
 @app.route('/query/', methods=['POST','GET'])
 def search():
@@ -93,13 +161,14 @@ def select_volume():
         volumeID = request.form['volumeID']
         bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
         book = json.loads(bookResponse.text)["volumeInfo"]
-        db.session.add(Book(title=book["title"], author=book["authors"][0], page_count=book["pageCount"], pub_date=book["publishedDate"], volume_id=volumeID))
+        img = book["imageLinks"]
+        db.session.add(Booklog(title=book["title"], author=book["authors"][0], page_count=book["pageCount"], pub_date=book["publishedDate"], img_url=img["thumbnail"], volume_id=volumeID))
         db.session.commit()
     return 'hurray'
 
 @app.route('/delete/<int:id>')
 def delete(id):
-    book_to_delete = Book.query.get_or_404(id)
+    book_to_delete = Booklog.query.get_or_404(id)
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
@@ -111,7 +180,7 @@ def delete(id):
 @app.route('/clear/')
 def clear():
     try:
-        book_list = Book.query.all()
+        book_list = Booklog.query.all()
         for book in book_list:
             db.session.delete(book)
         db.session.commit()
