@@ -25,7 +25,14 @@ h1 {
     transform: translateY(-50%);
 }
 
-table {
+.table-list {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.table-wimg {
+    width: 100%;
     border-collapse: collapse;
 }
 
@@ -69,6 +76,10 @@ td {
     border-top: 1px solid white;
 }
 
+.thumbnail {
+    max-width: 128px;
+}
+
 [class*="cent"] {
     margin: auto;
 }
@@ -88,8 +99,6 @@ td {
 
 .bookRow td {
     border: none;
-    padding-right: 5px;
-    padding-left: 5px;
 }
 
 .thumbnail {
@@ -102,6 +111,7 @@ td {
 .bookListing {
     padding-left: 15px;
     padding-top: 15px;
+    padding-right: 20px;
     vertical-align: top;
 }
 
@@ -110,3 +120,44 @@ th {
     padding-left: 5px;
     border-right: 1px solid white;
 }
+
+.spacerCol {
+    width: 1%;
+    border-left: none;
+}
+
+.titleCol {
+    border-right: none;
+    border-left: none;
+    width: 30%;
+    max-width: 30%;
+}
+
+.authorCol {
+    width: 15%;
+}
+
+.pageCol {
+    width: 6%;
+}
+
+.pubDateCol {
+    width: 10%;
+}
+
+.startedCol {
+    width: 10%;
+}
+
+.finishedCol {
+    width: 10%;
+    border-right: none;
+}
+
+.title {
+    width: 30%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.title:after { content: " ......................................................................................" }

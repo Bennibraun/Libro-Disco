@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date
+from dateutil.parser import parse
 import requests
 import json
 import sys
@@ -14,16 +15,17 @@ class Booklog(db.Model):
     title = db.Column(db.String(200),nullable=False)
     author = db.Column(db.String(200),nullable=True)
     page_count = db.Column(db.Integer,nullable=True)
-    pub_date = db.Column(db.String(15),nullable=True)
+    pub_date = db.Column(db.String(4),nullable=True)
     volume_id = db.Column(db.String(15),nullable=True)
     img_url = db.Column(db.String(100),nullable=True)
-    date_added = db.Column(db.Date, default=date.today)
+    date_started = db.Column(db.Date, default=date.today)
+    date_finished = db.Column(db.Date, default=None, nullable=True)
 
     # Called every time a new element is added to the db
     def __repr__(self):
         return '<book %r>' % self.id
 
-books = Booklog.query.order_by(Booklog.date_added).all()
+books = Booklog.query.order_by(Booklog.date_started).all()
 sortAtoZ = True
 showImages = False
 
@@ -38,7 +40,7 @@ def switchDisplayMode():
     showImages = not showImages
     return redirect('/')
 
-@app.route('/sort', methods=['POST'])
+@app.route('/sort', methods=['POST','GET'])
 def sort():
     global books
     global sortAtoZ
@@ -93,7 +95,7 @@ def sort():
     try:
         request.form['sortDateAdded']
         print('sorting by date added')
-        books = Booklog.query.order_by(Booklog.date_added).all()
+        books = Booklog.query.order_by(Booklog.date_started).all()
         if not sortAtoZ:
             books.reverse()
             sortAtoZ = True
@@ -103,6 +105,8 @@ def sort():
     except:
         pass
     
+    print('sorting by date added by default')
+    books = Booklog.query.order_by(Booklog.date_started).all()
     return redirect('/')
 
 @app.route('/query/', methods=['POST','GET'])
@@ -161,21 +165,48 @@ def select_volume():
         volumeID = request.form['volumeID']
         bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
         book = json.loads(bookResponse.text)["volumeInfo"]
-        img = book["imageLinks"]
-        db.session.add(Booklog(title=book["title"], author=book["authors"][0], page_count=book["pageCount"], pub_date=book["publishedDate"], img_url=img["thumbnail"], volume_id=volumeID))
+        try:
+            img = book["imageLinks"]
+        except:
+            img = {'thumbnail':'https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg'}
+        db.session.add(Booklog(title=book["title"], author=book["authors"][0], page_count=book["pageCount"], pub_date=book["publishedDate"][0:4], img_url=img["thumbnail"], volume_id=volumeID))
         db.session.commit()
     return 'hurray'
+
+@app.route('/finish_book/', methods=['POST'])
+def markFinished():
+    if request.method == 'POST':
+        # The date provided by the user
+        # Need to figure out how to parse
+        finishDate = request.form['finishedDate']
+        try:
+            print(finishDate)
+            formatted_date = parse(finishDate)
+            print(formatted_date)
+        except:
+            print('failure formatting date, using default (today)')
+            formatted_date = date.today()
+            print(formatted_date)
+        # The id of the book in the db
+        bookID = request.form['finishedBook']
+        book = Booklog.query.filter_by(id=bookID).first()
+        book.date_finished = formatted_date
+        db.session.commit()
+        print('done')
+
+    return redirect('/')
+
 
 @app.route('/delete/<int:id>')
 def delete(id):
     book_to_delete = Booklog.query.get_or_404(id)
+    print('deleting ' + book_to_delete.title)
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
-        # return redirect('/')
-        return render_template('error.html',msg='Error in delete() fn')
+        return redirect('/sort')
     except:
-        return 'There was a problem with the deletion'
+        return render_template('error.html',msg='Error in delete() fn')
 
 @app.route('/clear/')
 def clear():

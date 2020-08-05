@@ -38,50 +38,65 @@
                     </form>
                 </div>
                 {% if showImages %}
-                    <table class="BookLog">
+                    <table class="table-wimg">
+                        <tr class="bookRow"></tr>
                         {% for i in range(books|length) %}
                             <tr class="bookRow">
                                 <td class="thumbnail">
-                                    {% if books[i].img_url == "" %}
-                                        <img src="https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg" style="max-width:100%;max-height:100%;" />
-                                    {% else %}
-                                        <img src="{{ books[i].img_url }}" />
-                                    {% endif %}
+                                    <img class="thumbnail" src="{{ books[i].img_url }}" />
                                 </td>
                                 <td class="bookListing">
                                     <table>
-                                        <tr><td class="title"><h3>{{ books[i].title }}</h3></td></tr>
-                                        <tr><td class="author"><h6>{{ books[i].author }}</h6></td></tr>
+                                        <tr><td class="title-wimg"><h3>{{ books[i].title }}</h3></td></tr>
+                                        <tr><td class="author-wimg"><h6>{{ books[i].author }}</h6></td></tr>
                                         {% if books[i].page_count != "" %}
-                                            <tr><td class="pages">{{ books[i].page_count }} pages</td></tr>
+                                            <tr><td class="pages-wimg">{{ books[i].page_count }} pages</td></tr>
                                         {% endif %}
-                                        <tr><td class="publicationDate">Published {{ books[i].pub_date }}</td></tr>
-                                        <tr><td class="dateAdded">Added {{ books[i].date_added }}</td></tr>
+                                        <tr><td class="publicationDate-wimg">Published {{ books[i].pub_date }}</td></tr>
+                                        <tr><td class="dateAdded-wimg">Added {{ books[i].date_added }}</td></tr>
                                     </table>
                                 </td>
                             </tr>
                         {% endfor %}
                     </table>
                 {% else %}
-                    <table class="BookLog">
+                    <table class="table-list">
                         <tr class="listHeader">
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Pages</th>
-                            <th>Publication Date</th>
-                            <th style="border-right: none;">Date Added</th>
+                            <th class="titleCol">Title</th>
+                            <th class="spacerCol"></th>
+                            <th class="authorCol">Author</th class="titleCol">
+                            <th class="pageCol">Pages</th class="titleCol">
+                            <th class="pubDateCol">Published</th class="titleCol">
+                            <th class="startedCol">Started</th>
+                            <th class="finishedCol">Finished</th>
                         </tr>
                         <tr class="bookRow"></tr>
 
                         {% for i in range(books|length) %}
                             <tr class="bookRow">
                                 <td class="title">{{ books[i].title }}</td>
+                                <td class="spacerCol"></td>
                                 <td class="author">{{ books[i].author }}</td>
                                 {% if books[i].page_count != "" %}
                                     <td class="pages">{{ books[i].page_count }}</td>
                                 {% endif %}
                                 <td class="publicationDate">{{ books[i].pub_date }}</td>
-                                <td class="dateAdded">{{ books[i].date_added }}</td>
+                                <td class="dateStarted">{{ books[i].date_started }}</td>
+                                {% if books[i].date_finished == None %}
+                                    <td class="dateFinished">
+                                        <form action="/finish_book/" method="POST" style="float:left;">
+                                            <input id="finishedBook" type="hidden" name="finishedBook" value={{books[i].id}}>
+                                            <input id="finishedDate" type="text" name="finishedDate" placeholder="...">
+                                        </form>
+                                    </td>
+                                {% else %}
+                                    <td class="dateFinished">{{ books[i].date_finished }}</td>
+                                {% endif %}
+                                <td>
+                                    <form action="/delete/{{ books[i].id }}">
+                                        <input type="submit" value="❌"/>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                     </table>

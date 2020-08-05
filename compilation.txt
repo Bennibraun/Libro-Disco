@@ -23,3 +23,7 @@ python
 from app import db
 db.create_all()
 exit
+
+when recreating databases:
+make sure to put db.create_all() after all the db models so that tables are generated.
+better to just delete tables when changes are made and recreate them with py console.
