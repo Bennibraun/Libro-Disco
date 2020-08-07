@@ -35,13 +35,20 @@
                             </td>
                             <td class="bookListing">
                                 <table>
-                                    <tr><td class="title"><h3>{{ titles[i] }}</h3></td></tr>
+                                    <tr><td class="title-search"><h3>{{ titles[i] }}</h3></td></tr>
                                     <tr><td class="author"><h6>{{ authors[i] }}</h6></td></tr>
                                     {% if pages[i] != "" %}
                                         <tr><td class="pages">{{ pages[i] }} pages</td></tr>
                                     {% endif %}
                                     <tr><td class="publicationDate">Published {{ publishDates[i] }}</td></tr>
                                     <tr><td class="volumeID">{{ volumeIDs[i] }}</td></tr>
+                                </table>
+                            </td>
+                            <td class="addBookMenu">
+                                <table>
+                                    <tr><form action='/select_volume/' method="POST" style="float: left;">
+                                        <input type="submit" name="addBookBtn" value="Add to Reading Log">
+                                    </form></tr>
                                 </table>
                             </td>
                         </tr>

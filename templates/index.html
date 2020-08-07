@@ -11,7 +11,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
-                <h1>Ben's Books</h1>
+                <h1>Book Log</h1>
             </div>
             <div class="col-md-6">
                 <form id="searchForm" action="/query/" method="POST" style="float: left;">
@@ -43,7 +43,7 @@
                         {% for i in range(books|length) %}
                             <tr class="bookRow">
                                 <td class="thumbnail">
-                                    <img class="thumbnail" src="{{ books[i].img_url }}" />
+                                    <img id="thumbnail{{books[i].id}}" class="thumbnail" src="{{ books[i].img_url }}" />
                                 </td>
                                 <td class="bookListing">
                                     <table>
@@ -74,29 +74,29 @@
 
                         {% for i in range(books|length) %}
                             <tr class="bookRow">
-                                <td class="title">{{ books[i].title }}</td>
+                                <td class="title" id="title{{books[i].id}}">{{ books[i].title }}</td>
                                 <td class="spacerCol"></td>
-                                <td class="author">{{ books[i].author }}</td>
+                                <td class="author" id="author{{books[i].id}}">{{ books[i].author }}</td>
                                 {% if books[i].page_count != "" %}
-                                    <td class="pages">{{ books[i].page_count }}</td>
+                                    <td class="pages" id="pages{{books[i].id}}">{{ books[i].page_count }}</td>
                                 {% endif %}
-                                <td class="publicationDate">{{ books[i].pub_date }}</td>
-                                <td class="dateStarted">{{ books[i].date_started }}</td>
+                                <td class="publicationDate" id="pubDate{{books[i].id}}">{{ books[i].pub_date }}</td>
+                                <td class="dateStarted" id="startDate{{books[i].id}}">{{ books[i].date_started }}</td>
                                 {% if books[i].date_finished == None %}
-                                    <td class="dateFinished">
+                                    <td class="dateFinished" id="finishDateTD{{books[i].id}}">
                                         <form action="/finish_book/" method="POST" style="float:left;">
-                                            <input id="finishedBook" type="hidden" name="finishedBook" value={{books[i].id}}>
-                                            <input id="finishedDate" type="text" name="finishedDate" placeholder="...">
+                                            <input id="finishedBook{{books[i].id}}" type="hidden" name="finishedBook" value={{books[i].id}}>
+                                            <input id="finishDate{{books[i].id}}" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;">
                                         </form>
                                     </td>
                                 {% else %}
-                                    <td class="dateFinished">{{ books[i].date_finished }}</td>
+                                    <td class="dateFinished" id="finishDate{{books[i].id}}">{{ books[i].date_finished }}</td>
                                 {% endif %}
-                                <td>
-                                    <form action="/delete/{{ books[i].id }}">
-                                        <input type="submit" value="❌"/>
-                                    </form>
+                                <td id="bookControls{{books[i].id}}" class="bookControls">
+                                    <button id="editBtn{{books[i].id}}" class="editBtn" style="float: left;">✎</button>
                                 </td>
+                                <td id="volumeID{{books[i].id}}" style="display:none;">{{books[i].volume_id}}</td>
+                                <td id="img_url{{books[i].id}}" style="display:none;">{{books[i].img_url}}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -105,5 +105,87 @@
         </div>
     </div>
 </div>
+
+<script>
+
+    let title, author, pages, published, startDate, finishDate;
+
+    function restoreListing(id) {
+        $("#title"+id).html(title);
+        $("#author"+id).html(author);
+        $("#pages"+id).html(pages);
+        $("#pubDate"+id).html(published);
+        $("#startDate"+id).html(startDate);
+        if (finishDate == "") {
+            finishDate = '<form action="/finish_book/" method="POST" style="float:left;"><input id="finishedBook'+id+'" type="hidden" name="finishedBook" value='+id+'><input id="finishDate'+id+'" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;"></form>';
+        }
+        $("#finishDateTD"+id).html(finishDate);
+
+        $("#cancelEditBtn"+id).remove();
+        $("#saveEditBtn"+id).remove();
+        $("#deleteBtn"+id).remove();
+        $("#editBtn"+id).show();
+    }
+
+    $(".editBtn").click(function() {
+        var id = this.id.substring(7);
+        if ($("#title"+id).html().includes("<input")) {
+            return;
+        }
+        title = $("#title"+id).text();
+        $("#title"+id).html('<input type="text" id="titleEditField'+id+'" value="' + title + '"  style="width:100%;">');
+        author = $("#author"+id).text();
+        $("#author"+id).html('<input type="text" id="authorEditField'+id+'" value="' + author + '"  style="width:100%;">');
+        pages = $("#pages"+id).text();
+        $("#pages"+id).html('<input type="text" id="pagesEditField'+id+'" value="' + pages + '"  style="width:100%;">');
+        published = $("#pubDate"+id).text();
+        $("#pubDate"+id).html('<input type="text" id="publishedEditField'+id+'" value="' + published + '"  style="width:100%;">');
+        startDate = $("#startDate"+id).text();
+        $("#startDate"+id).html('<input type="text" id="startDateEditField'+id+'" value="' + startDate + '"  style="width:100%;">');
+        finishDate = $("#finishDate"+id).val();
+        console.log(finishDate);
+        $("#finishDateTD"+id).html('<input type="text" id="finishDateEditField'+id+'" value="' + finishDate + '"  style="width:100%;">');
+
+        $("#editBtn"+id).hide();
+        $("#bookControls"+id).append('<button id="cancelEditBtn'+id+'" class="cancelEditBtn" style="float: left;">↩️</button>');
+        $("#bookControls"+id).append('<button id="saveEditBtn'+id+'" class="saveEditBtn" style="float: left;">💾</button>');
+        $("#bookControls"+id).append('<form id="deleteBtn'+id+'" action="/delete/'+id+'" style="float: left;"><input type="submit" value="❌"/></form>');
+        $("#cancelEditBtn"+id).click(function() { restoreListing(id); });
+        $("#saveEditBtn"+id).click(function() {
+            title = $("#titleEditField"+id).val();
+            author = $("#authorEditField"+id).val();
+            pages = $("#pagesEditField"+id).val();
+            published = $("#publishedEditField"+id).val();
+            startDate = $("#startDateEditField"+id).val();
+            finishDate = $("#finishDateEditField"+id).val();
+            var thumbnail = $("#img_url"+id).text();
+            var volumeID = $("#volumeID"+id).text();
+
+            console.log(finishDate);
+
+            $.ajax({
+                type: "POST",
+                url: '/edit_listing/',
+                data: JSON.stringify({
+                    'id':id,
+                    'title':title,
+                    'author':author,
+                    'pages':pages,
+                    'published':published,
+                    'startDate':startDate,
+                    'finishDate':finishDate,
+                    'thumbnail':thumbnail,
+                    'volumeID':volumeID
+                }),
+                contentType: "application/json",
+                success: function (data) {}
+            });
+
+            restoreListing(id);
+        });
+    });
+</script>
+
+
 
 {% endblock %}

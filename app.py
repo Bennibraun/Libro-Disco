@@ -154,7 +154,7 @@ def search():
                 try:
                     volumeIDs.append(''.join(book["id"]))
                 except:
-                    return render_template('index.html')
+                    return redirect('/')
             return render_template('search.html', img_url=img_url, results=results, titles=titles, authors=authors, pages=pages, publishDates=publishDates, volumeIDs=volumeIDs)
     else:
         return render_template('error.html', msg='failed to render search results')
@@ -176,29 +176,23 @@ def select_volume():
 @app.route('/finish_book/', methods=['POST'])
 def markFinished():
     if request.method == 'POST':
-        # The date provided by the user
-        # Need to figure out how to parse
-        finishDate = request.form['finishedDate']
-        try:
-            print(finishDate)
-            formatted_date = parse(finishDate)
-            print(formatted_date)
-        except:
-            print('failure formatting date, using default (today)')
-            formatted_date = date.today()
-            print(formatted_date)
-        # The id of the book in the db
         bookID = request.form['finishedBook']
+        finishDate = request.form['finishDate']
+        try:
+            formatted_date = parse(finishDate)
+        except:
+            formatted_date = date.today()
+        
         book = Booklog.query.filter_by(id=bookID).first()
         book.date_finished = formatted_date
         db.session.commit()
-        print('done')
 
-    return redirect('/')
+    return redirect('/sort')
 
 
 @app.route('/delete/<int:id>')
 def delete(id):
+    print(id)
     book_to_delete = Booklog.query.get_or_404(id)
     print('deleting ' + book_to_delete.title)
     try:
@@ -208,6 +202,32 @@ def delete(id):
     except:
         return render_template('error.html',msg='Error in delete() fn')
 
+@app.route('/edit_listing/', methods=['POST','GET'])
+def edit_listing():
+    if request.method == "POST":
+        edits = request.get_json()
+        print(edits['id'])
+        old_book = Booklog.query.filter_by(id=edits['id']).first()
+        
+        try:
+            edits['startDate'] = parse(edits['startDate'])
+        except:
+            edits['startDate'] = old_book.date_started
+        
+        try:
+            edits['finishDate'] = parse(edits['finishDate'])
+        except:
+            edits['finishDate'] = old_book.date_finished
+
+        db.session.add(Booklog(title=edits['title'], author=edits['author'], page_count=edits['pages'], pub_date=edits['published'][0:4], date_started=edits["startDate"], date_finished=edits["finishDate"], img_url=edits["thumbnail"], volume_id=edits['volumeID']))
+        db.session.commit()
+
+        db.session.delete(old_book)
+        db.session.commit()
+
+    return redirect('/sort')
+
+
 @app.route('/clear/')
 def clear():
     try:
@@ -215,7 +235,6 @@ def clear():
         for book in book_list:
             db.session.delete(book)
         db.session.commit()
-        # return redirect('/')
         return render_template('error.html',msg='Error in clear() fn')
     except:
         return 'Clear failed'
