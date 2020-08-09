@@ -26,12 +26,16 @@ class Booklog(db.Model):
         return '<book %r>' % self.id
 
 books = Booklog.query.order_by(Booklog.date_started).all()
+sort = ''
 sortAtoZ = True
 showImages = False
 
 @app.route('/')
 def index():
-    return render_template('index.html', books=books, showImages=showImages)
+    global books
+    global showImages
+    global sort
+    return render_template('index.html', books=books, showImages=showImages, sort=sort)
 
 @app.route('/displayMode', methods=['POST'])
 def switchDisplayMode():
@@ -40,70 +44,82 @@ def switchDisplayMode():
     showImages = not showImages
     return redirect('/')
 
-@app.route('/sort', methods=['POST','GET'])
+@app.route('/sort', methods=['POST'])
 def sort():
     global books
+    global sort
     global sortAtoZ
-    try:
-        request.form['sortAuthor']
-        print('sorting by author')
-        books = Booklog.query.order_by(Booklog.author).all()
-        if not sortAtoZ:
-            books.reverse()
-            sortAtoZ = True
-        else:
-            sortAtoZ = False
-        return redirect('/')
-    except:
-        pass
-    try:
-        request.form['sortTitle']
-        print('sorting by title')
-        books = Booklog.query.order_by(Booklog.title).all()
-        if not sortAtoZ:
-            books.reverse()
-            sortAtoZ = True
-        else:
-            sortAtoZ = False
-        return redirect('/')
-    except:
-        pass
-    try:
-        request.form['sortPageCount']
-        print('sorting by page count')
-        books = Booklog.query.order_by(Booklog.page_count).all()
-        if not sortAtoZ:
-            books.reverse()
-            sortAtoZ = True
-        else:
-            sortAtoZ = False
-        return redirect('/')
-    except:
-        pass
-    try:
-        request.form['sortPubDate']
-        print('sorting by publication date')
-        books = Booklog.query.order_by(Booklog.pub_date).all()
-        if not sortAtoZ:
-            books.reverse()
-            sortAtoZ = True
-        else:
-            sortAtoZ = False
-        return redirect('/')
-    except:
-        pass
-    try:
-        request.form['sortDateAdded']
-        print('sorting by date added')
-        books = Booklog.query.order_by(Booklog.date_started).all()
-        if not sortAtoZ:
-            books.reverse()
-            sortAtoZ = True
-        else:
-            sortAtoZ = False
-        return redirect('/')
-    except:
-        pass
+    if request.method == 'POST':
+        try:
+            request.form['sortAuthor']
+            print('sorting by author')
+            books = Booklog.query.order_by(Booklog.author).all()
+            if not sortAtoZ:
+                sort = 'authorUp'
+                books.reverse()
+                sortAtoZ = True
+            else:
+                sort = 'authorDown'
+                sortAtoZ = False
+            return redirect('/')
+        except:
+            pass
+        try:
+            request.form['sortTitle']
+            print('sorting by title')
+            books = Booklog.query.order_by(Booklog.title).all()
+            if not sortAtoZ:
+                sort = 'titleUp'
+                books.reverse()
+                sortAtoZ = True
+            else:
+                sort = 'titleDown'
+                sortAtoZ = False
+            return redirect('/')
+        except:
+            pass
+        try:
+            request.form['sortPageCount']
+            print('sorting by page count')
+            books = Booklog.query.order_by(Booklog.page_count).all()
+            if not sortAtoZ:
+                sort = 'pagesUp'
+                books.reverse()
+                sortAtoZ = True
+            else:
+                sort = 'pagesDown'
+                sortAtoZ = False
+            return redirect('/')
+        except:
+            pass
+        try:
+            request.form['sortPubDate']
+            print('sorting by publication date')
+            books = Booklog.query.order_by(Booklog.pub_date).all()
+            if not sortAtoZ:
+                sort = 'pubUp'
+                books.reverse()
+                sortAtoZ = True
+            else:
+                sort = 'pubDown'
+                sortAtoZ = False
+            return redirect('/')
+        except:
+            pass
+        try:
+            request.form['sortDateAdded']
+            print('sorting by date added')
+            books = Booklog.query.order_by(Booklog.date_started).all()
+            if not sortAtoZ:
+                sort = 'addedUp'
+                books.reverse()
+                sortAtoZ = True
+            else:
+                sort = 'addedDown'
+                sortAtoZ = False
+            return redirect('/')
+        except:
+            pass
     
     print('sorting by date added by default')
     books = Booklog.query.order_by(Booklog.date_started).all()
@@ -171,7 +187,7 @@ def select_volume():
             img = {'thumbnail':'https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg'}
         db.session.add(Booklog(title=book["title"], author=book["authors"][0], page_count=book["pageCount"], pub_date=book["publishedDate"][0:4], img_url=img["thumbnail"], volume_id=volumeID))
         db.session.commit()
-    return 'hurray'
+    return redirect('/')
 
 @app.route('/finish_book/', methods=['POST'])
 def markFinished():
@@ -187,7 +203,7 @@ def markFinished():
         book.date_finished = formatted_date
         db.session.commit()
 
-    return redirect('/sort')
+    return redirect('/refresh/')
 
 
 @app.route('/delete/<int:id>')
@@ -198,7 +214,7 @@ def delete(id):
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
-        return redirect('/sort')
+        return redirect('/refresh/')
     except:
         return render_template('error.html',msg='Error in delete() fn')
 
@@ -222,22 +238,46 @@ def edit_listing():
         db.session.add(Booklog(title=edits['title'], author=edits['author'], page_count=edits['pages'], pub_date=edits['published'][0:4], date_started=edits["startDate"], date_finished=edits["finishDate"], img_url=edits["thumbnail"], volume_id=edits['volumeID']))
         db.session.commit()
 
-        db.session.delete(old_book)
-        db.session.commit()
-
-    return redirect('/sort')
+    return redirect('/')
 
 
-@app.route('/clear/')
-def clear():
-    try:
-        book_list = Booklog.query.all()
-        for book in book_list:
-            db.session.delete(book)
-        db.session.commit()
-        return render_template('error.html',msg='Error in clear() fn')
-    except:
-        return 'Clear failed'
+@app.route('/refresh/')
+def refresh():
+    # Sort as it should be, by default
+    global sort
+    global books
+    global showImages
+    if sort == 'titleUp':
+        books = Booklog.query.order_by(Booklog.title).all()
+    elif sort == 'titleDown':
+        books = Booklog.query.order_by(Booklog.title).all()
+        books.reverse()
+    elif sort == 'authorUp':
+        books = Booklog.query.order_by(Booklog.author).all()
+    elif sort == 'authorDown':
+        books = Booklog.query.order_by(Booklog.author).all()
+        books.reverse()
+    elif sort == 'pagesUp':
+        books = Booklog.query.order_by(Booklog.page_count).all()
+    elif sort == 'pagesDown':
+        books = Booklog.query.order_by(Booklog.page_count).all()
+        books.reverse()
+    elif sort == 'pubUp':
+        books = Booklog.query.order_by(Booklog.pub_date).all()
+    elif sort == 'pubDown':
+        books = Booklog.query.order_by(Booklog.pub_date).all()
+        books.reverse()
+    elif sort == 'addedUp':
+        books = Booklog.query.order_by(Booklog.date_started).all()
+    elif sort == 'addedDown':
+        books = Booklog.query.order_by(Booklog.date_started).all()
+        books.reverse()
+    else:
+        sort = 'addedUp'
+        books = Booklog.query.order_by(Booklog.date_started).all()
+
+    print('refreshing')
+    return render_template('index.html', books=books, showImages=showImages, sort=sort)
 
 
 if __name__ == "__main__":

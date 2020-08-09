@@ -23,21 +23,23 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" style="height: 50vh; border: none; overflow: hidden;">
                 <div class="listHeaderMenu">
                     <form action="/sort" method="post">
                         Sort by: 
-                        <input name="sortTitle" value="Title" type="submit">
-                        <input name="sortAuthor" value="Author" type="submit">
-                        <input name="sortPageCount" value="Page Count" type="submit">
-                        <input name="sortPubDate" value="Publication Date" type="submit">
-                        <input name="sortDateAdded" value="Date Added" type="submit">
+                        <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortPageCount" name="sortPageCount" value="Page Count {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortPubDate" name="sortPubDate" value="Publication Date {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortDateAdded" name="sortDateAdded" value="Date Added {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit">
                     </form>
+
                     <form action="/displayMode" method="post" style="padding-left: 20px;">
                         <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
                     </form>
                 </div>
                 {% if showImages %}
+                <div id="tableContent" style="height: 40vh; overflow: overlay;">
                     <table class="table-wimg">
                         <tr class="bookRow"></tr>
                         {% for i in range(books|length) %}
@@ -59,18 +61,24 @@
                             </tr>
                         {% endfor %}
                     </table>
+                </div>
                 {% else %}
                     <table class="table-list">
                         <tr class="listHeader">
-                            <th class="titleCol">Title</th>
+                            <th class="titleCol">&nbsp&nbspTitle</th>
                             <th class="spacerCol"></th>
-                            <th class="authorCol">Author</th class="titleCol">
-                            <th class="pageCol">Pages</th class="titleCol">
-                            <th class="pubDateCol">Published</th class="titleCol">
+                            <th class="authorCol">Author</th>
+                            <th class="pageCol">Pages</th>
+                            <th class="pubDateCol">Published</th>
                             <th class="startedCol">Started</th>
                             <th class="finishedCol">Finished</th>
+                            <th class="controlCol"></th>
                         </tr>
-                        <tr class="bookRow"></tr>
+                    </table>
+
+                    <div id="tableContent" style="height: 40vh; overflow: overlay;">
+                    <table class="table-list">
+                        
 
                         {% for i in range(books|length) %}
                             <tr class="bookRow">
@@ -100,7 +108,9 @@
                             </tr>
                         {% endfor %}
                     </table>
+                    </div>
                 {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -143,13 +153,12 @@
         startDate = $("#startDate"+id).text();
         $("#startDate"+id).html('<input type="text" id="startDateEditField'+id+'" value="' + startDate + '"  style="width:100%;">');
         finishDate = $("#finishDate"+id).val();
-        console.log(finishDate);
         $("#finishDateTD"+id).html('<input type="text" id="finishDateEditField'+id+'" value="' + finishDate + '"  style="width:100%;">');
 
         $("#editBtn"+id).hide();
         $("#bookControls"+id).append('<button id="cancelEditBtn'+id+'" class="cancelEditBtn" style="float: left;">↩️</button>');
         $("#bookControls"+id).append('<button id="saveEditBtn'+id+'" class="saveEditBtn" style="float: left;">💾</button>');
-        $("#bookControls"+id).append('<form id="deleteBtn'+id+'" action="/delete/'+id+'" style="float: left;"><input type="submit" value="❌"/></form>');
+        $("#bookControls"+id).append('<form id="deleteBtn'+id+'" action="/delete/'+id+'" style="float: left;"><input id="deleteBtnSubmit'+id+'" type="submit" value="❌"/></form>');
         $("#cancelEditBtn"+id).click(function() { restoreListing(id); });
         $("#saveEditBtn"+id).click(function() {
             title = $("#titleEditField"+id).val();
@@ -161,7 +170,7 @@
             var thumbnail = $("#img_url"+id).text();
             var volumeID = $("#volumeID"+id).text();
 
-            console.log(finishDate);
+            $("#deleteBtnSubmit"+id).trigger("click");
 
             $.ajax({
                 type: "POST",
@@ -181,7 +190,7 @@
                 success: function (data) {}
             });
 
-            restoreListing(id);
+
         });
     });
 </script>

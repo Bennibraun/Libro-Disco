@@ -123,45 +123,93 @@ th {
 
 .spacerCol {
     width: 1%;
+    border-right: none;
     border-left: none;
 }
 
 .titleCol {
-    border-right: none;
-    border-left: none;
     width: 30%;
     max-width: 30%;
+    border-right: none;
+    border-left: none;
 }
 
 .authorCol {
     width: 15%;
+    border-right: none;
+    border-left: none;
 }
 
 .pageCol {
     width: 6%;
+    border-right: none;
+    border-left: none;
 }
 
 .pubDateCol {
     width: 10%;
+    border-right: none;
+    border-left: none;
 }
 
 .startedCol {
     width: 10%;
+    border-right: none;
+    border-left: none;
 }
 
 .finishedCol {
     width: 10%;
     border-right: none;
+    border-left: none;
+}
+
+.controlCol {
+    width: 18%;
+    border-right: none;
+    border-left: none;
 }
 
 .title {
     width: 30%;
-    overflow: hidden;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.title:after { content: " ......................................................................................" }
+.author {
+    width: 15%;
+}
+
+.pages {
+    width: 6%;
+}
+
+.publicationDate {
+    width: 10%;
+}
+
+.dateStarted {
+    width: 10%;
+}
+
+.dateFinished {
+    width: 10%;
+}
+
 
 .bookControls {
-    width: 19%;
+    width: 18%;
+}
+
+*::-webkit-scrollbar {
+    width: 5px;
+}
+*::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0);
+}
+*::-webkit-scrollbar-thumb {
+    background-color: white;
+    border-radius: 20px;
+    border: none;
 }
