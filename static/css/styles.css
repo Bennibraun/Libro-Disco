@@ -38,7 +38,7 @@ h1 {
 
 td {
     padding: 3px;
-    border: 1px solid white;
+    border: none;
     border-collapse: collapse;
 }
 
@@ -89,12 +89,8 @@ td {
     width: 100%;
 }
 
-[class*="results"] {
+[class*="resultsCol"] {
     width: 75%;
-}
-
-.bookRow + tr:hover {
-    background-color: #18192c;
 }
 
 .bookRow td {
@@ -128,26 +124,26 @@ th {
 }
 
 .titleCol {
-    width: 30%;
+    width: 25%;
     max-width: 30%;
     border-right: none;
     border-left: none;
 }
 
 .authorCol {
-    width: 15%;
+    width: 17%;
     border-right: none;
     border-left: none;
 }
 
 .pageCol {
-    width: 6%;
+    width: 5%;
     border-right: none;
     border-left: none;
 }
 
 .pubDateCol {
-    width: 10%;
+    width: 5%;
     border-right: none;
     border-left: none;
 }
@@ -164,29 +160,38 @@ th {
     border-left: none;
 }
 
-.controlCol {
+.genresCol {
     width: 18%;
     border-right: none;
     border-left: none;
 }
 
+.controlCol {
+    width: 12%;
+    border-right: none;
+    border-left: none;
+}
+
 .title {
-    width: 30%;
+    width: 25%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .author {
-    width: 15%;
+    width: 17%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .pages {
-    width: 6%;
+    width: 5%;
 }
 
 .publicationDate {
-    width: 10%;
+    width: 5%;
 }
 
 .dateStarted {
@@ -197,8 +202,11 @@ th {
     width: 10%;
 }
 
-
 .bookControls {
+    width: 12%;
+}
+
+.genres {
     width: 18%;
 }
 
@@ -212,4 +220,30 @@ th {
     background-color: white;
     border-radius: 20px;
     border: none;
+}
+
+input {
+    border-radius: 5px;
+}
+
+.searchMenu {
+    border-radius: 5px;
+    width: 100%;
+    height: 50px;
+}
+
+.addBookMenu {
+    width: 20%;
+}
+
+.table-list tr:nth-child(even) {
+    background-color: #313463;
+}
+
+tr [class*="wimg"] {
+    background-color: inherit;
+}
+
+button {
+    border-radius: 5px;
 }

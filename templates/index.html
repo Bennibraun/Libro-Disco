@@ -9,6 +9,8 @@
 
 <div class="content">
     <div class="container-fluid">
+
+
         <div class="row">
             <div class="col-md-3">
                 <h1>Book Log</h1>
@@ -22,10 +24,12 @@
             <div class="col-md-3">
             </div>
         </div>
+
+
         <div class="row">
-            <div class="col-md-6" style="height: 50vh; border: none; overflow: hidden;">
+            <div class="col-md-7" style="height: 50vh; border: none; overflow: hidden;">
                 <div class="listHeaderMenu">
-                    <form action="/sort" method="post">
+                    <form action="/sort/" method="post">
                         Sort by: 
                         <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit">
                         <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit">
@@ -34,7 +38,7 @@
                         <input id="sortDateAdded" name="sortDateAdded" value="Date Added {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit">
                     </form>
 
-                    <form action="/displayMode" method="post" style="padding-left: 20px;">
+                    <form action="/displayMode/" method="post" style="padding-left: 20px;">
                         <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
                     </form>
                 </div>
@@ -49,13 +53,14 @@
                                 </td>
                                 <td class="bookListing">
                                     <table>
-                                        <tr><td class="title-wimg"><h3>{{ books[i].title }}</h3></td></tr>
-                                        <tr><td class="author-wimg"><h6>{{ books[i].author }}</h6></td></tr>
+                                        <tr class="wimg"><td class="title-wimg"><h3>{{ books[i].title }}</h3></td></tr class="wimg">
+                                        <tr class="wimg"><td class="author-wimg"><h6>{{ books[i].author }}</h6></td></trclass="wimg">
                                         {% if books[i].page_count != "" %}
-                                            <tr><td class="pages-wimg">{{ books[i].page_count }} pages</td></tr>
+                                            <tr class="wimg"
+                                            class="wimg"><td class="pages-wimg">{{ books[i].page_count }} pages</td></tr>
                                         {% endif %}
-                                        <tr><td class="publicationDate-wimg">Published {{ books[i].pub_date }}</td></tr>
-                                        <tr><td class="dateAdded-wimg">Added {{ books[i].date_added }}</td></tr>
+                                        <tr class="wimg"><td class="publicationDate-wimg">Published {{ books[i].pub_date }}</td></tr>
+                                        <tr class="wimg"><td class="dateAdded-wimg">Added {{ books[i].date_added }}</td></trclass="wimg">
                                     </table>
                                 </td>
                             </tr>
@@ -65,13 +70,14 @@
                 {% else %}
                     <table class="table-list">
                         <tr class="listHeader">
-                            <th class="titleCol">&nbsp&nbspTitle</th>
+                            <th class="titleCol">&nbspTitle</th>
                             <th class="spacerCol"></th>
                             <th class="authorCol">Author</th>
-                            <th class="pageCol">Pages</th>
-                            <th class="pubDateCol">Published</th>
-                            <th class="startedCol">Started</th>
-                            <th class="finishedCol">Finished</th>
+                            <th class="pageCol">Pg.</th>
+                            <th class="pubDateCol">Pub.</th>
+                            <th class="startedCol">Start</th>
+                            <th class="finishedCol">Finish</th>
+                            <th class="genresCol">Genres</th>
                             <th class="controlCol"></th>
                         </tr>
                     </table>
@@ -91,20 +97,149 @@
                                 <td class="publicationDate" id="pubDate{{books[i].id}}">{{ books[i].pub_date }}</td>
                                 <td class="dateStarted" id="startDate{{books[i].id}}">{{ books[i].date_started }}</td>
                                 {% if books[i].date_finished == None %}
-                                    <td class="dateFinished" id="finishDateTD{{books[i].id}}">
+                                    <td class="dateFinished" id="finishDate{{books[i].id}}">
                                         <form action="/finish_book/" method="POST" style="float:left;">
                                             <input id="finishedBook{{books[i].id}}" type="hidden" name="finishedBook" value={{books[i].id}}>
-                                            <input id="finishDate{{books[i].id}}" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;">
+                                            <input id="finishDateField{{books[i].id}}" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;">
                                         </form>
                                     </td>
                                 {% else %}
                                     <td class="dateFinished" id="finishDate{{books[i].id}}">{{ books[i].date_finished }}</td>
                                 {% endif %}
+                                <td id="genres{{books[i].id}}" class="genres">
+                                    <select class="genresSelect" multiple style="width: 100%;" data-placeholder="Select genres">
+                                        <option value="0" {% if 'Astronomy' in genres[i] %} selected {% else %} hidden {% endif %}>Astronomy</option>
+                                        <option value="0" {% if 'Biography' in genres[i] %} selected {% else %} hidden {% endif %}>Biography</option>
+                                        <option value="0" {% if 'Business' in genres[i] %} selected {% else %} hidden {% endif %}>Business</option>
+                                        <option value="0" {% if 'Classic' in genres[i] %} selected {% else %} hidden {% endif %}>Classic</option>
+                                        <option value="0" {% if 'Graphic Novel' in genres[i] %} selected {% else %} hidden {% endif %}>Graphic Novel</option>
+                                        <option value="0" {% if 'Computing' in genres[i] %} selected {% else %} hidden {% endif %}>Computing</option>
+                                        <option value="0" {% if 'Engineering' in genres[i] %} selected {% else %} hidden {% endif %}>Engineering</option>
+                                        <option value="0" {% if 'Fantasy' in genres[i] %} selected {% else %} hidden {% endif %}>Fantasy</option>
+                                        <option value="0" {% if 'Health' in genres[i] %} selected {% else %} hidden {% endif %}>Health</option>
+                                        <option value="0" {% if 'History' in genres[i] %} selected {% else %} hidden {% endif %}>History</option>
+                                        <option value="0" {% if 'Horror' in genres[i] %} selected {% else %} hidden {% endif %}>Horror</option>
+                                        <option value="0" {% if 'Humor' in genres[i] %} selected {% else %} hidden {% endif %}>Humor</option>
+                                        <option value="0" {% if 'Kids' in genres[i] %} selected {% else %} hidden {% endif %}>Kids</option>
+                                        <option value="0" {% if 'Law' in genres[i] %} selected {% else %} hidden {% endif %}>Law</option>
+                                        <option value="0" {% if 'Math' in genres[i] %} selected {% else %} hidden {% endif %}>Math</option>
+                                        <option value="0" {% if 'Military' in genres[i] %} selected {% else %} hidden {% endif %}>Military</option>
+                                        <option value="0" {% if 'Music' in genres[i] %} selected {% else %} hidden {% endif %}>Music</option>
+                                        <option value="0" {% if 'Mystery' in genres[i] %} selected {% else %} hidden {% endif %}>Mystery</option>
+                                        <option value="0" {% if 'Nature' in genres[i] %} selected {% else %} hidden {% endif %}>Nature</option>
+                                        <option value="0" {% if 'Philosophy' in genres[i] %} selected {% else %} hidden {% endif %}>Philosophy</option>
+                                        <option value="0" {% if 'Poetry' in genres[i] %} selected {% else %} hidden {% endif %}>Poetry</option>
+                                        <option value="0" {% if 'Politics' in genres[i] %} selected {% else %} hidden {% endif %}>Politics</option>
+                                        <option value="0" {% if 'Psychology' in genres[i] %} selected {% else %} hidden {% endif %}>Psychology</option>
+                                        <option value="0" {% if 'Religion' in genres[i] %} selected {% else %} hidden {% endif %}>Religion</option>
+                                        <option value="0" {% if 'Romance' in genres[i] %} selected {% else %} hidden {% endif %}>Romance</option>
+                                        <option value="0" {% if 'Science' in genres[i] %} selected {% else %} hidden {% endif %}>Science</option>
+                                        <option value="0" {% if 'Sci-Fi' in genres[i] %} selected {% else %} hidden {% endif %}>Sci-Fi</option>
+                                        <option value="0" {% if 'Teen' in genres[i] %} selected {% else %} hidden {% endif %}>Teen</option>
+                                        <option value="0" {% if 'Travel' in genres[i] %} selected {% else %} hidden {% endif %}>Travel</option>
+                                    </select>
+                                </td>
                                 <td id="bookControls{{books[i].id}}" class="bookControls">
-                                    <button id="editBtn{{books[i].id}}" class="editBtn" style="float: left;">✎</button>
+                                    <button id="editBtn{{books[i].id}}" class="editBtn">📝 Edit</button>
                                 </td>
                                 <td id="volumeID{{books[i].id}}" style="display:none;">{{books[i].volume_id}}</td>
                                 <td id="img_url{{books[i].id}}" style="display:none;">{{books[i].img_url}}</td>
+                            </tr>
+                        {% endfor %}
+                        <script>
+                            $(".genresSelect").chosen();
+
+                            // Set listeners to send added or removed genres to database
+                            $(".genresSelect").change(function() {
+                                var id = this.id.substring(6);
+                                var genres = "";
+                                {% for book in books %}
+                                    if (id == parseInt("{{book.id}}")) {
+                                        genres = "{{book.genres}}"
+                                    }
+                                {% endfor %}
+                                $.ajax({
+                                    type: "POST",
+                                    url: '/set_genres/',
+                                    data: JSON.stringify({'genres':genres}),
+                                    contentType: "application/json",
+                                    success: function () {}
+                                })
+                            });
+
+                        </script>
+                    </table>
+                    </div>
+                {% endif %}
+                </div>
+                
+
+                <div class="col-md-5" style="height: 38vh; border: none; overflow: hidden;">
+                <div class="listHeaderMenu">
+                    <form action="/sort_reading_list/" method="post">
+                        Sort by: 
+                        <input id="sortTitle2" name="sortTitle" value="Title {% if sortReadList == 'titleUp' %}🔼{% elif sortReadList == 'titleDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortAuthor2" name="sortAuthor" value="Author {% if sortReadList == 'authorUp' %}🔼{% elif sortReadList == 'authorDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortPageCount2" name="sortPageCount" value="Page Count {% if sortReadList == 'pagesUp' %}🔼{% elif sortReadList == 'pagesDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortPubDate2" name="sortPubDate" value="Publication Date {% if sortReadList == 'pubUp' %}🔼{% elif sortReadList == 'pubDown' %}🔽{% endif %}" type="submit">
+                    </form>
+
+                    <form action="/displayModeReadingList/" method="post" style="padding-left: 20px;">
+                        <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
+                    </form>
+                </div>
+                {% if showImagesReadingList %}
+                <div id="tableContent" style="height: 30vh; overflow: overlay;">
+                    <table class="table-wimg">
+                        <tr class="bookRow"></tr>
+                        {% for i in range(booksToRead|length) %}
+                            <tr class="bookRow">
+                                <td class="thumbnail">
+                                    <img id="thumbnail{{booksToRead[i].id}}" class="thumbnail" src="{{ booksToRead[i].img_url }}" />
+                                </td>
+                                <td class="bookListing">
+                                    <table>
+                                        <tr><td class="title-wimg"><h3>{{ booksToRead[i].title }}</h3></td></tr>
+                                        <tr><td class="author-wimg"><h6>{{ booksToRead[i].author }}</h6></td></tr>
+                                        {% if booksToRead[i].page_count != "" %}
+                                            <tr><td class="pages-wimg">{{ booksToRead[i].page_count }} pages</td></tr>
+                                        {% endif %}
+                                        <tr><td class="publicationDate-wimg">Published {{ booksToRead[i].pub_date }}</td></tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% else %}
+                    <table class="table-list">
+                        <tr class="listHeader">
+                            <th class="titleCol" style="width: 49%;">Title</th>
+                            <th class="spacerCol"></th>
+                            <th class="authorCol" style="width: 20%;">Author</th>
+                            <th class="pageCol" style="width: 8%;">Pg.</th>
+                            <th class="pubDateCol" style="width: 8%;">Pub.</th>
+                            <th class="bookControlsCol" style="width: 20%"></th>
+                    </table>
+
+                    <div id="tableContent" style="height: 40vh; overflow: overlay;">
+                    <table class="table-list">
+                        
+
+                        {% for i in range(booksToRead|length) %}
+                            <tr class="bookRow">
+                                <td class="title" id="title{{booksToRead[i].id}}" style="width: 49%;">{{ booksToRead[i].title }}</td>
+                                <td class="spacerCol"></td>
+                                <td class="author" id="author{{booksToRead[i].id}}" style="width: 20%;">{{ booksToRead[i].author }}</td>
+                                {% if booksToRead[i].page_count != "" %}
+                                    <td class="pages" id="pages{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].page_count }}</td>
+                                {% endif %}
+                                <td class="publicationDate" id="pubDate{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].pub_date }}</td>
+                                <td id="bookControls{{booksToRead[i].id}}" class="bookControls" style="width: 20%;">
+                                    <button id="readBtn{{booksToRead[i].id}}" class="readBtn" style="float: left;">📖 Read Book</button>
+                                </td>
+                                <td id="volumeID{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].volume_id}}</td>
+                                <td id="img_url{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].img_url}}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -112,11 +247,157 @@
                 {% endif %}
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
+                        <canvas id="GenreChart" width="400" height="400"></canvas>
+                    </div>
+                    <script>
+                        Chart.defaults.global.responsive = true;
+
+                        
+                        var ctx = $('#GenreChart');
+
+                        var genres = [];
+
+                        var GenreChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
+                                datasets: [{
+                                    label: ' # of books',
+                                    data: [12, 19, 3, 5, 2, 3],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                    </script>
+
+                    <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
+                        <canvas id="GenreChart2" width="400" height="400"></canvas>
+                    </div>
+                    <script>
+                        Chart.defaults.global.responsive = true;
+
+                        var ctx = $('#GenreChart2');
+                        var GenreChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
+                                datasets: [{
+                                    label: '# of Books Read',
+                                    data: [12, 19, 3, 5, 2, 3],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+
+    function readBook(volumeID, id) {
+        var xmlhttp = new XMLHttpRequest();
+        var url = "https://www.googleapis.com/books/v1/volumes/"+volumeID;
+
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var bookJSON = JSON.parse(this.responseText);
+                var name = bookJSON.volumeInfo.authors[0];
+                name = parseFullName(name);
+                author = name.last;
+                if (name.first) {
+                    author += ", "+name.first;
+                    if (name.middle) {
+                        author += " "+name.middle;
+                    }
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '/select_volume/',
+                    data: JSON.stringify({
+                        'volumeID':volumeID,
+                        'author':author
+                    }),
+                    contentType: "application/json",
+                    success: function () {
+                        $.ajax({
+                            url: '/delete_reading_list/'+id,
+                            success: function () {
+                                window.location = "/sort_all/"
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    }
+
+    $(".readBtn").click(function() {
+        var id = this.id.substring(7);
+        var volume_id = $("#volumeID"+id).text();
+        readBook(volume_id,id);
+        
+    });
+
 
     let title, author, pages, published, startDate, finishDate;
 
@@ -127,9 +408,11 @@
         $("#pubDate"+id).html(published);
         $("#startDate"+id).html(startDate);
         if (finishDate == "") {
-            finishDate = '<form action="/finish_book/" method="POST" style="float:left;"><input id="finishedBook'+id+'" type="hidden" name="finishedBook" value='+id+'><input id="finishDate'+id+'" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;"></form>';
+            $("#finishDate"+id).html('<form action="/finish_book/" method="POST" style="float:left;"><input id="finishedBook'+id+'" type="hidden" name="finishedBook" value='+id+'><input id="finishDateField'+id+'" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;"></form>');
         }
-        $("#finishDateTD"+id).html(finishDate);
+        else {
+            $("#finishDate"+id).html('<td class="dateFinished" id="finishDate'+id+'">'+finishDate+'</td>');
+        }
 
         $("#cancelEditBtn"+id).remove();
         $("#saveEditBtn"+id).remove();
@@ -152,8 +435,11 @@
         $("#pubDate"+id).html('<input type="text" id="publishedEditField'+id+'" value="' + published + '"  style="width:100%;">');
         startDate = $("#startDate"+id).text();
         $("#startDate"+id).html('<input type="text" id="startDateEditField'+id+'" value="' + startDate + '"  style="width:100%;">');
-        finishDate = $("#finishDate"+id).val();
-        $("#finishDateTD"+id).html('<input type="text" id="finishDateEditField'+id+'" value="' + finishDate + '"  style="width:100%;">');
+        finishDate = $("#finishDate"+id).text();
+        if (finishDate == undefined || !finishDate.trim()) {
+            finishDate = $("#finishDateField"+id).val();
+        }
+        $("#finishDate"+id).html('<input type="text" id="finishDateEditField'+id+'" value="' + finishDate + '"  style="width:100%;">');
 
         $("#editBtn"+id).hide();
         $("#bookControls"+id).append('<button id="cancelEditBtn'+id+'" class="cancelEditBtn" style="float: left;">↩️</button>');

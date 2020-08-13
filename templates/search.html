@@ -21,11 +21,11 @@
         </div>
 
         <div class="row">
-            <div class="col-md-12-cent-results">
+            <div class="col-md-12-cent-resultsCol">
                 <table class="searchResults-cent">
                     <tr class="bookRow"></tr>
                     {% for i in range(titles|length) %}
-                        <tr class="bookRow">
+                        <tr class="bookSearchRow">
                             <td class="thumbnail">
                                 {% if img_url[i] == "" %}
                                     <img src="https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg" style="max-width:100%;max-height:100%;" />
@@ -41,29 +41,74 @@
                                         <tr><td class="pages">{{ pages[i] }} pages</td></tr>
                                     {% endif %}
                                     <tr><td class="publicationDate">Published {{ publishDates[i] }}</td></tr>
-                                    <tr><td class="volumeID">{{ volumeIDs[i] }}</td></tr>
                                 </table>
                             </td>
                             <td class="addBookMenu">
-                                <table>
-                                    <tr><form action='/select_volume/' method="POST" style="float: left;">
-                                        <input type="submit" name="addBookBtn" value="Add to Reading Log">
-                                    </form></tr>
+                                <table style="width: 100%">
+                                    <tr><td class="searchMenu">
+                                        <button class="logAddBtn searchMenu" value="{{ volumeIDs[i] }}">📖 Reading</button>
+                                    </td></tr>
+                                    <tr><td class="searchMenu">
+                                        <button class="readingListAddBtn searchMenu" value="{{ volumeIDs[i] }}">📚 Want to Read</button>
+                                    </td></tr>
                                 </table>
                             </td>
                         </tr>
                     {% endfor %}
                     <script>
-                        $(".volumeID").hide();
-                        $(".bookRow").click(function() {
-                            volumeID = $(this).find($(".volumeID"))[0].innerText;
-                            $.ajax({
-                                type: "POST",
-                                url: '/select_volume/',
-                                data: {volumeID:volumeID},
-                                success: function (data) {}
-                            });
+                        // Send volume ID and format author name
+                        function sendBook(volumeID,flask_url) {
+                            var xmlhttp = new XMLHttpRequest();
+                            var url = "https://www.googleapis.com/books/v1/volumes/"+volumeID;
+
+                            xmlhttp.onreadystatechange = function() {
+                                if (this.readyState == 4 && this.status == 200) {
+                                    var bookJSON = JSON.parse(this.responseText);
+                                    var name = bookJSON.volumeInfo.authors[0];
+                                    console.log(name)
+                                    name = parseFullName(name);
+                                    author = name.last;
+                                    if (name.first) {
+                                        author += ", "+name.first;
+                                        if (name.middle) {
+                                            author += " "+name.middle;
+                                        }
+                                    }
+                                    $.ajax({
+                                        type: "POST",
+                                        url: flask_url,
+                                        data: JSON.stringify({
+                                            'volumeID':volumeID,
+                                            'author':author
+                                        }),
+                                        contentType: "application/json",
+                                        success: function () {
+                                            if (flask_url == '/select_volume/') {
+                                                window.location = "/sort/";
+                                            }
+                                            else if (flask_url == '/add_reading_list/') {
+                                                window.location = "/sort_reading_list/";
+                                            }
+                                        }
+                                    });
+                                }
+                            };
+                            xmlhttp.open("GET", url, true);
+                            xmlhttp.send();
+                        }
+
+
+                        $(".logAddBtn").click(function() {
+                            var volumeID = $(this).val();
+                            sendBook(volumeID,'/select_volume/');
                         });
+
+                        $(".readingListAddBtn").click(function() {
+                            var volumeID = $(this).val();
+                            console.log(volumeID);
+                            sendBook(volumeID,'/add_reading_list/');
+                        });
+
                     </script>
                 </table>
             </div>
