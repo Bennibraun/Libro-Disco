@@ -76,10 +76,10 @@ def setRedisVars():
 
     print('sort: ' + sort)
     print('sortReadingList: ' + sortReadList)
-    print('sortAtoZ: ' + sortAtoZ)
-    print('sortAtoZReading' + sortAtoZReading)
-    print('showImages' + showImages)
-    print('showImagesReadingList' + showImagesReadingList)
+    print('sortAtoZ: ' + str(sortAtoZ))
+    print('sortAtoZReading' + str(sortAtoZReading))
+    print('showImages' + str(showImages))
+    print('showImagesReadingList' + str(showImagesReadingList))
 
 
 def getRedisVars():
@@ -101,10 +101,10 @@ def getRedisVars():
 
     print('sort: ' + sort)
     print('sortReadingList: ' + sortReadList)
-    print('sortAtoZ: ' + sortAtoZ)
-    print('sortAtoZReading' + sortAtoZReading)
-    print('showImages' + showImages)
-    print('showImagesReadingList' + showImagesReadingList)
+    print('sortAtoZ: ' + str(sortAtoZ))
+    print('sortAtoZReading' + str(sortAtoZReading))
+    print('showImages' + str(showImages))
+    print('showImagesReadingList' + str(showImagesReadingList))
 
 
 @app.route('/')
