@@ -59,7 +59,6 @@ showImagesReadingList = False
 
 @app.route('/')
 def index():
-    print('loading index, first setting redis vars')
     global books
     global readingListBooks
     showImages = bool(rdb.get('showImages'))
@@ -89,10 +88,12 @@ def index():
 
 @app.route('/displayMode/', methods=['POST'])
 def switchDisplayMode():
+    print('switching display modes')
     showImages = bool(rdb.get('showImages'))
+    print('showImages: ' + str(rdb.get('showImages')))
     showImages = not showImages
     rdb.set('showImages',int(showImages))
-    print('switching display modes')
+    print('showImages: ' + str(rdb.get('showImages')))
     return redirect('/')
 
 @app.route('/displayModeReadingList/', methods=['POST'])
@@ -111,6 +112,7 @@ def sortLog():
     print('sorting using...')
     if request.method == 'POST':
         print('post')
+        print('sortAtoZ: ' + str(sortAtoZ))
         try:
             request.form['sortAuthor']
             print('sorting by author')
