@@ -15,6 +15,8 @@ SQLALCHEMY_BINDS = {
     'readinglist': 'sqlite:///readinglist.db'
 }
 
+rdb = redis.from_url(os.environ.get("REDIS_URL"))
+
 db = SQLAlchemy(app)
 
 class Booklog(db.Model):
@@ -54,10 +56,41 @@ sortAtoZReading = True
 showImages = False
 showImagesReadingList = False
 
-r = redis.from_url(os.environ.get("REDIS_URL"))
+
+def setRedisVars():
+    global sort
+    global sortReadingList
+    global sortAtoZ
+    global sortAtoZReading
+    global showImages
+    global showImagesReadingList
+
+    rdb.set('sort',sort)
+    rdb.set('sortReadList',sortReadList)
+    rdb.set('sortAtoZ',sortAtoZ)
+    rdb.set('sortAtoZReading',sortAtoZReading)
+    rdb.set('showImages',showImages)
+    rdb.set('showImagesReadingList',showImagesReadingList)
+
+def getRedisVars():
+    global sort
+    global sortReadingList
+    global sortAtoZ
+    global sortAtoZReading
+    global showImages
+    global showImagesReadingList
+
+    sort = rdb.get('sort')
+    sortReadList = rdb.get('sortReadList')
+    sortAtoZ = rdb.get('sortAtoZ')
+    sortAtoZReading = rdb.get('sortAtoZReading')
+    showImages = rdb.get('showImages')
+    showImagesReadingList = rdb.get('showImagesReadingList')
+
 
 @app.route('/')
 def index():
+    setRedisVars()
     global books
     global readingListBooks
     global showImages
@@ -85,6 +118,7 @@ def index():
 
 @app.route('/displayMode/', methods=['POST'])
 def switchDisplayMode():
+    getRedisVars()
     global showImages
     showImages = not showImages
     print('switching display modes')
@@ -92,12 +126,14 @@ def switchDisplayMode():
 
 @app.route('/displayModeReadingList/', methods=['POST'])
 def switchReadingDisplay():
+    getRedisVars()
     global showImagesReadingList
     showImagesReadingList = not showImagesReadingList
     return redirect('/')
 
 @app.route('/sort/', methods=['POST','GET'])
 def sort():
+    getRedisVars()
     global books
     global sort
     global sortAtoZ
@@ -209,6 +245,7 @@ def sort():
 
 @app.route('/sort_reading_list/', methods=['POST','GET'])
 def sortReadingList():
+    getRedisVars()
     global readingListBooks
     global sortReadList
     global sortAtoZReading
@@ -300,6 +337,7 @@ def sortReadingList():
 
 @app.route('/sort_all/', methods=['GET'])
 def sortAll():
+    getRedisVars()
     global books
     global sort
     global sortAtoZ
