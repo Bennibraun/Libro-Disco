@@ -68,7 +68,7 @@ def setRedisVars():
     print('setting redis vars')
 
     rdb.set('sort',sort)
-    rdb.set('sortReadList',sortReadList)
+    rdb.set('sortReadList',str(sortReadList))
     rdb.set('sortAtoZ',int(sortAtoZ))
     rdb.set('sortAtoZReading',int(sortAtoZReading))
     rdb.set('showImages',int(showImages))
@@ -151,7 +151,7 @@ def switchReadingDisplay():
     return redirect('/')
 
 @app.route('/sort_log/', methods=['POST','GET'])
-def sort():
+def sortLog():
     getRedisVars()
     global books
     global sort
