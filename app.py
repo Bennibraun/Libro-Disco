@@ -57,67 +57,16 @@ showImages = False
 showImagesReadingList = False
 
 
-def setRedisVars():
-    global sort
-    global sortReadingList
-    global sortAtoZ
-    global sortAtoZReading
-    global showImages
-    global showImagesReadingList
-
-    print('setting redis vars')
-
-    rdb.set('sort',sort)
-    rdb.set('sortReadList',str(sortReadList))
-    rdb.set('sortAtoZ',int(sortAtoZ))
-    rdb.set('sortAtoZReading',int(sortAtoZReading))
-    rdb.set('showImages',int(showImages))
-    rdb.set('showImagesReadingList',int(showImagesReadingList))
-
-    print('sort: ' + str(sort))
-    print('sortReadingList: ' + str(sortReadList))
-    print('sortAtoZ: ' + str(sortAtoZ))
-    print('sortAtoZReading' + str(sortAtoZReading))
-    print('showImages' + str(showImages))
-    print('showImagesReadingList' + str(showImagesReadingList))
-
-
-def getRedisVars():
-    global sort
-    global sortReadingList
-    global sortAtoZ
-    global sortAtoZReading
-    global showImages
-    global showImagesReadingList
-
-    print('getting redis vars')
-
-    sort = rdb.get('sort')
-    sortReadList = rdb.get('sortReadList')
-    sortAtoZ = bool(rdb.get('sortAtoZ'))
-    sortAtoZReading = bool(rdb.get('sortAtoZReading'))
-    showImages = bool(rdb.get('showImages'))
-    showImagesReadingList = bool(rdb.get('showImagesReadingList'))
-
-    print('sort: ' + str(sort))
-    print('sortReadingList: ' + str(sortReadList))
-    print('sortAtoZ: ' + str(sortAtoZ))
-    print('sortAtoZReading' + str(sortAtoZReading))
-    print('showImages' + str(showImages))
-    print('showImagesReadingList' + str(showImagesReadingList))
-
-
 @app.route('/')
 def index():
     print('loading index, first setting redis vars')
-    setRedisVars()
     global books
     global readingListBooks
-    global showImages
-    global showImagesReadingList
-    global sort
+    showImages = bool(rdb.get('showImages'))
+    showImagesReadingList = bool(rdb.get('showImagesReadingList'))
+    sort = rdb.get('sort')
 
-    print('sort is now saved as: ' + sort)
+    print('sort is now saved as: ' + str(sort))
 
     for book in books:
         books_json = {
@@ -140,26 +89,25 @@ def index():
 
 @app.route('/displayMode/', methods=['POST'])
 def switchDisplayMode():
-    getRedisVars()
-    global showImages
+    showImages = bool(rdb.get('showImages'))
     showImages = not showImages
+    rdb.set('showImages',int(showImages))
     print('switching display modes')
     return redirect('/')
 
 @app.route('/displayModeReadingList/', methods=['POST'])
 def switchReadingDisplay():
-    getRedisVars()
-    global showImagesReadingList
+    showImagesReadingList = bool(rdb.get('showImagesReadingList'))
     showImagesReadingList = not showImagesReadingList
+    rdb.set('showImagesReadingList',int(showImagesReadingList))
     return redirect('/')
 
 @app.route('/sort_log/', methods=['POST','GET'])
 def sortLog():
     print('sorting log, first get redis vars')
-    getRedisVars()
     global books
-    global sort
-    global sortAtoZ
+    sort = str(rdb.get('sort'))
+    sortAtoZ = bool(rdb.get('sortAtoZ'))
     print('sorting using...')
     if request.method == 'POST':
         print('post')
@@ -264,14 +212,16 @@ def sortLog():
             sort = 'addedUp'
             books = Booklog.query.order_by(Booklog.date_started).all()
     
+
+    rdb.set('sort',sort)
+    rdb.set('sortAtoZ',int(sortAtoZ))
     return redirect('/')
 
 @app.route('/sort_reading_list/', methods=['POST','GET'])
 def sortReadingList():
-    getRedisVars()
     global readingListBooks
-    global sortReadList
-    global sortAtoZReading
+    sortReadList = rdb.get('sortReadList')
+    sortAtoZReading = bool(rdb.get('sortAtoZReading'))
     if request.method == 'POST':
         print('post')
         try:
@@ -356,17 +306,18 @@ def sortReadingList():
             sortReadList = 'addedUp'
             readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
     
+    rdb.set('sortReadList',str(sortReadList))
+    rdb.set('sortAtoZReading',int(sortAtoZReading))
     return redirect('/')
 
 @app.route('/sort_all/', methods=['GET'])
 def sortAll():
-    getRedisVars()
     global books
-    global sort
-    global sortAtoZ
     global readingListBooks
-    global sortReadList
-    global sortAtoZReading
+    sort = rdb.get('sort')
+    sortReadList = rdb.get('sortReadList')
+    sortAtoZ = bool(rdb.get('sortAtoZ'))
+    sortAtoZReading = bool(rdb.get('sortAtoZReading'))
     # Sort the log
     if sort == 'titleUp':
         books = Booklog.query.order_by(Booklog.title).all()
@@ -422,6 +373,10 @@ def sortAll():
         sortReadList = 'addedUp'
         readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
 
+    rdb.set('sort',sort)
+    rdb.set('sortReadList',str(sortReadList))
+    rdb.set('sortAtoZ',int(sortAtoZ))
+    rdb.set('sortAtoZReading',int(sortAtoZReading))
     return redirect('/')
 
 
