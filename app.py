@@ -74,8 +74,8 @@ def setRedisVars():
     rdb.set('showImages',int(showImages))
     rdb.set('showImagesReadingList',int(showImagesReadingList))
 
-    print('sort: ' + sort)
-    print('sortReadingList: ' + sortReadList)
+    print('sort: ' + str(sort))
+    print('sortReadingList: ' + str(sortReadList))
     print('sortAtoZ: ' + str(sortAtoZ))
     print('sortAtoZReading' + str(sortAtoZReading))
     print('showImages' + str(showImages))
@@ -99,8 +99,8 @@ def getRedisVars():
     showImages = bool(rdb.get('showImages'))
     showImagesReadingList = bool(rdb.get('showImagesReadingList'))
 
-    print('sort: ' + sort)
-    print('sortReadingList: ' + sortReadList)
+    print('sort: ' + str(sort))
+    print('sortReadingList: ' + str(sortReadList))
     print('sortAtoZ: ' + str(sortAtoZ))
     print('sortAtoZReading' + str(sortAtoZReading))
     print('showImages' + str(showImages))
