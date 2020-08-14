@@ -67,8 +67,8 @@ def setRedisVars():
 
     print('setting redis vars')
 
-    rdb.set('sort',str(sort))
-    rdb.set('sortReadList',str(sortReadList))
+    rdb.set('sort',sort)
+    rdb.set('sortReadList',sortReadList)
     rdb.set('sortAtoZ',int(sortAtoZ))
     rdb.set('sortAtoZReading',int(sortAtoZReading))
     rdb.set('showImages',int(showImages))
@@ -150,7 +150,7 @@ def switchReadingDisplay():
     showImagesReadingList = not showImagesReadingList
     return redirect('/')
 
-@app.route('/sort/', methods=['POST','GET'])
+@app.route('/sort_log/', methods=['POST','GET'])
 def sort():
     getRedisVars()
     global books
@@ -555,7 +555,7 @@ def select_volume():
         print(volumeID)
         db.session.add(Booklog(title=book["title"], author=author, page_count=book["pageCount"], pub_date=book["publishedDate"][0:4], img_url=img["thumbnail"], volume_id=volumeID, genres=genres))
         db.session.commit()
-    return redirect('/sort/')
+    return redirect('sort_log/')
 
 @app.route('/set_genres/', methods=['POST'])
 def set_genres():
@@ -578,7 +578,7 @@ def markFinished():
         book.date_finished = formatted_date
         db.session.commit()
 
-    return redirect('/sort/')
+    return redirect('sort_log/')
 
 
 @app.route('/delete/<int:id>')
@@ -589,7 +589,7 @@ def delete(id):
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
-        return redirect('/sort/')
+        return redirect('sort_log/')
     except:
         return render_template('error.html',msg='Error in delete() fn')
 
@@ -644,7 +644,7 @@ def add_reading_list():
             img = {'thumbnail':'https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg'}
         db.session.add(ReadingList(title=book["title"], author=author, page_count=book["pageCount"], pub_date=book["publishedDate"][0:4], img_url=img["thumbnail"], volume_id=volumeID))
         db.session.commit()
-    return redirect('/sort/')
+    return redirect('sort_log/')
 
 
 if __name__ == "__main__":
