@@ -65,7 +65,7 @@ def setRedisVars():
     global showImages
     global showImagesReadingList
 
-    rdb.set('sort',sort)
+    rdb.set('sort','titleUp')
     rdb.set('sortReadList',sortReadList)
     rdb.set('sortAtoZ',sortAtoZ)
     rdb.set('sortAtoZReading',sortAtoZReading)
