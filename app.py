@@ -109,12 +109,15 @@ def getRedisVars():
 
 @app.route('/')
 def index():
+    print('loading index, first setting redis vars')
     setRedisVars()
     global books
     global readingListBooks
     global showImages
     global showImagesReadingList
     global sort
+
+    print('sort is now saved as: ' + sort)
 
     for book in books:
         books_json = {
@@ -152,6 +155,7 @@ def switchReadingDisplay():
 
 @app.route('/sort_log/', methods=['POST','GET'])
 def sortLog():
+    print('sorting log, first get redis vars')
     getRedisVars()
     global books
     global sort
