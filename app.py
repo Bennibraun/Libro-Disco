@@ -74,12 +74,12 @@ def setRedisVars():
     rdb.set('showImages',int(showImages))
     rdb.set('showImagesReadingList',int(showImagesReadingList))
 
-    print(sort)
-    print(sortReadList)
-    print(sortAtoZ)
-    print(sortAtoZReading)
-    print(showImages)
-    print(showImagesReadingList)
+    print('sort: ' + sort)
+    print('sortReadingList: ' + sortReadList)
+    print('sortAtoZ: ' + sortAtoZ)
+    print('sortAtoZReading' + sortAtoZReading)
+    print('showImages' + showImages)
+    print('showImagesReadingList' + showImagesReadingList)
 
 
 def getRedisVars():
@@ -99,12 +99,12 @@ def getRedisVars():
     showImages = bool(rdb.get('showImages'))
     showImagesReadingList = bool(rdb.get('showImagesReadingList'))
 
-    print(sort)
-    print(sortReadList)
-    print(sortAtoZ)
-    print(sortAtoZReading)
-    print(showImages)
-    print(showImagesReadingList)
+    print('sort: ' + sort)
+    print('sortReadingList: ' + sortReadList)
+    print('sortAtoZ: ' + sortAtoZ)
+    print('sortAtoZReading' + sortAtoZReading)
+    print('showImages' + showImages)
+    print('showImagesReadingList' + showImagesReadingList)
 
 
 @app.route('/')
