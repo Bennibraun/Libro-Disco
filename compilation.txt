@@ -18,6 +18,9 @@ https://devcenter.heroku.com/articles/git
 https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 https://www.youtube.com/watch?v=Z1RJmh_OqeA
 
+update requirements for heroku when adding pip packages:
+pip freeze > requirements.txt
+
 creating databases:
 python
 from app import db

@@ -5,9 +5,12 @@ from dateutil.parser import parse
 import requests
 import json
 import sys
+import os
+import redis
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///booklog.db'
+app.config['DEBUG'] = True
 SQLALCHEMY_BINDS = {
     'readinglist': 'sqlite:///readinglist.db'
 }
@@ -51,6 +54,8 @@ sortAtoZReading = True
 showImages = False
 showImagesReadingList = False
 
+r = redis.from_url(os.environ.get("REDIS_URL"))
+
 @app.route('/')
 def index():
     global books
@@ -74,12 +79,15 @@ def index():
         genre_list = book.genres.split(',')
         genres.append(genre_list)
 
+    print('rendering index.html as normal')
+
     return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres)
 
 @app.route('/displayMode/', methods=['POST'])
 def switchDisplayMode():
     global showImages
     showImages = not showImages
+    print('switching display modes')
     return redirect('/')
 
 @app.route('/displayModeReadingList/', methods=['POST'])
@@ -93,6 +101,7 @@ def sort():
     global books
     global sort
     global sortAtoZ
+    print('sorting using...')
     if request.method == 'POST':
         print('post')
         try:
