@@ -65,12 +65,12 @@ def setRedisVars():
     global showImages
     global showImagesReadingList
 
-    rdb.set('sort','titleUp')
-    rdb.set('sortReadList',sortReadList)
-    rdb.set('sortAtoZ',sortAtoZ)
-    rdb.set('sortAtoZReading',sortAtoZReading)
-    rdb.set('showImages',showImages)
-    rdb.set('showImagesReadingList',showImagesReadingList)
+    rdb.set('sort',str(sort))
+    rdb.set('sortReadList',str(sortReadList))
+    rdb.set('sortAtoZ',int(sortAtoZ))
+    rdb.set('sortAtoZReading',int(sortAtoZReading))
+    rdb.set('showImages',int(showImages))
+    rdb.set('showImagesReadingList',int(showImagesReadingList))
 
 def getRedisVars():
     global sort
@@ -82,10 +82,10 @@ def getRedisVars():
 
     sort = rdb.get('sort')
     sortReadList = rdb.get('sortReadList')
-    sortAtoZ = rdb.get('sortAtoZ')
-    sortAtoZReading = rdb.get('sortAtoZReading')
-    showImages = rdb.get('showImages')
-    showImagesReadingList = rdb.get('showImagesReadingList')
+    sortAtoZ = bool(rdb.get('sortAtoZ'))
+    sortAtoZReading = bool(rdb.get('sortAtoZReading'))
+    showImages = bool(rdb.get('showImages'))
+    showImagesReadingList = bool(rdb.get('showImagesReadingList'))
 
 
 @app.route('/')
