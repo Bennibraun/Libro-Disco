@@ -15,7 +15,7 @@ SQLALCHEMY_BINDS = {
     'readinglist': 'sqlite:///readinglist.db'
 }
 
-rdb = redis.from_url(os.environ.get("REDIS_URL"))
+rdb = redis.from_url(os.environ.get("REDISCLOUD_URL"))
 
 db = SQLAlchemy(app)
 
@@ -195,6 +195,7 @@ def sortLog():
             print('sortAtoZ is now: ' + str(sortAtoZ))
             rdb.set('sort',sort)
             rdb.set('sortAtoZ',int(sortAtoZ))
+            print('verify sortAtoZ was updated: ' + str(rdb.get('sortAtoZ')))
             return redirect('/')
         except:
             pass
