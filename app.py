@@ -214,7 +214,7 @@ def sortLog():
             sort = 'addedUp'
             books = Booklog.query.order_by(Booklog.date_started).all()
     
-
+    print('sortAtoZ is now: ' + str(sortAtoZ))
     rdb.set('sort',sort)
     rdb.set('sortAtoZ',int(sortAtoZ))
     return redirect('/')
