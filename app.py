@@ -124,6 +124,9 @@ def sortLog():
             else:
                 sort = 'authorDown'
                 sortAtoZ = False
+            print('sortAtoZ is now: ' + str(sortAtoZ))
+            rdb.set('sort',sort)
+            rdb.set('sortAtoZ',int(sortAtoZ))
             return redirect('/')
         except:
             pass
@@ -138,6 +141,9 @@ def sortLog():
             else:
                 sort = 'titleDown'
                 sortAtoZ = False
+            print('sortAtoZ is now: ' + str(sortAtoZ))
+            rdb.set('sort',sort)
+            rdb.set('sortAtoZ',int(sortAtoZ))
             return redirect('/')
         except:
             pass
@@ -152,6 +158,9 @@ def sortLog():
             else:
                 sort = 'pagesDown'
                 sortAtoZ = False
+            print('sortAtoZ is now: ' + str(sortAtoZ))
+            rdb.set('sort',sort)
+            rdb.set('sortAtoZ',int(sortAtoZ))
             return redirect('/')
         except:
             pass
@@ -166,6 +175,9 @@ def sortLog():
             else:
                 sort = 'pubDown'
                 sortAtoZ = False
+            print('sortAtoZ is now: ' + str(sortAtoZ))
+            rdb.set('sort',sort)
+            rdb.set('sortAtoZ',int(sortAtoZ))
             return redirect('/')
         except:
             pass
@@ -180,6 +192,9 @@ def sortLog():
             else:
                 sort = 'addedDown'
                 sortAtoZ = False
+            print('sortAtoZ is now: ' + str(sortAtoZ))
+            rdb.set('sort',sort)
+            rdb.set('sortAtoZ',int(sortAtoZ))
             return redirect('/')
         except:
             pass
