@@ -70,12 +70,12 @@
                 {% else %}
                     <table class="table-list">
                         <tr class="listHeader">
-                            <th id="titleCol" class="titleCol">&nbspTitle</th>
+                            <th id="titleCol" class="titleCol">&nbspTitle {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}</th>
                             <th id="spacerCol" class="spacerCol"></th>
-                            <th id="authorCol" class="authorCol">Author</th>
-                            <th id="pageCol" class="pageCol">Pg.</th>
-                            <th id="pubDateCol" class="pubDateCol">Pub.</th>
-                            <th id="startedCol" class="startedCol">Start</th>
+                            <th id="authorCol" class="authorCol">Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}</th>
+                            <th id="pageCol" class="pageCol">Pg. {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}</th>
+                            <th id="pubDateCol" class="pubDateCol">Pub. {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}</th>
+                            <th id="startedCol" class="startedCol">Start {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}</th>
                             <th id="finishedCol" class="finishedCol">Finish</th>
                             <th id="genresCol" class="genresCol">Genres</th>
                             <th id="controlCol" class="controlCol"></th>
@@ -92,23 +92,18 @@
                             <script>
                                 $("#titleCol").click(function() {
                                     $("#sortTitle").click();
-                                    $("#titleCol").text($("#sortTitle").val());
                                 });
                                 $("#authorCol").click(function() {
                                     $("#sortAuthor").click();
-                                    $("#authorCol").text($("#sortAuthor").val());
                                 });
                                 $("#pageCol").click(function() {
                                     $("#sortPageCount").click();
-                                    $("#pageCol").text($("#sortPageCount").val());
                                 });
                                 $("#pubDateCol").click(function() {
                                     $("#sortPubDate").click();
-                                    $("#pubDateCol").text($("#sortPubDate").val());
                                 });
                                 $("#startedCol").click(function() {
                                     $("#sortDateAdded").click();
-                                    $("#startedCol").text($("#sortDateAdded").val());
                                 });
                             </script>
                         </tr>
