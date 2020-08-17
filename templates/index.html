@@ -79,14 +79,15 @@
                             <th id="finishedCol" class="finishedCol">Finish</th>
                             <th id="genresCol" class="genresCol">Genres</th>
                             <th id="controlCol" class="controlCol"></th>
+                            <div style="display: none;">
                             <form action="sort_log/" method="post" style="display: none;">
-                                Sort by: 
-                                <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit">
-                                <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit">
-                                <input id="sortPageCount" name="sortPageCount" value="Pg. {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}" type="submit">
-                                <input id="sortPubDate" name="sortPubDate" value="Pub. {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}" type="submit">
-                                <input id="sortDateAdded" name="sortDateAdded" value="Start {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit">
+                                <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                                <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                                <input id="sortPageCount" name="sortPageCount" value="Pg. {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                                <input id="sortPubDate" name="sortPubDate" value="Pub. {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                                <input id="sortDateAdded" name="sortDateAdded" value="Start {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit" style="display: none;">
                             </form>
+                            </div>
 
                             <script>
                                 $("#titleCol").click(function() {
