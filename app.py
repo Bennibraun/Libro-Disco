@@ -65,6 +65,7 @@ def index():
     showImages = (rdb.get('showImages').decode('utf-8') == 'True')
     showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
     sort = rdb.get('sort').decode('utf-8')
+    sortReadList = rdb.get('sortReadList').decode('utf-8')
 
     for book in books:
         books_json = {
