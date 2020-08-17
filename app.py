@@ -17,11 +17,6 @@ SQLALCHEMY_BINDS = {
 
 rdb = redis.from_url(os.environ.get("REDISCLOUD_URL"))
 
-print('testing redis')
-test_str = 'test string'
-rdb.set('testStr',test_str)
-print(rdb.get('testStr').decode('utf-8'))
-
 db = SQLAlchemy(app)
 
 class Booklog(db.Model):
@@ -54,24 +49,22 @@ class ReadingList(db.Model):
 
 books = Booklog.query.order_by(Booklog.date_started).all()
 readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-sort = ''
-sortReadList = ''
-sortAtoZ = True
-sortAtoZReading = True
+
+rdb.set('sort','')
+rdb.set('sortReadList','')
+rdb.set('sortAtoZ','True')
+rdb.set('sortAtoZReading','True')
 rdb.set('showImages','False')
-showImagesReadingList = False
+rdb.set('showImagesReadingList','False')
 
 
 @app.route('/')
 def index():
     global books
     global readingListBooks
-    showImages = (rdb.get('showImages').decode('utf-8') == "True")
-    print('drawing index with showImages = ' + str(showImages))
-    showImagesReadingList = bool(rdb.get('showImagesReadingList'))
-    sort = rdb.get('sort')
-
-    print('sort is now saved as: ' + str(sort))
+    showImages = (rdb.get('showImages').decode('utf-8') == 'True')
+    showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
+    sort = rdb.get('sort').decode('utf-8')
 
     for book in books:
         books_json = {
@@ -92,36 +85,38 @@ def index():
 
     return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres)
 
+
 @app.route('/displayMode/', methods=['POST'])
 def switchDisplayMode():
-    print('switching display modes')
-    showImages = (rdb.get('showImages').decode('utf-8') == "True")
-    print('showImages: ' + rdb.get('showImages').decode('utf-8'))
-    print(showImages)
+    showImages = (rdb.get('showImages').decode('utf-8') == 'True')
+
     showImages = not showImages
-    print(showImages)
+
     img_str = 'True' if showImages else 'False'
     rdb.set('showImages',img_str)
-    print('showImages: ' + rdb.get('showImages').decode('utf-8'))
+
     return redirect('/')
+
 
 @app.route('/displayModeReadingList/', methods=['POST'])
 def switchReadingDisplay():
-    showImagesReadingList = bool(rdb.get('showImagesReadingList'))
+    showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
+
     showImagesReadingList = not showImagesReadingList
-    rdb.set('showImagesReadingList',int(showImagesReadingList))
+
+    img_str = 'True' if showImagesReadingList else 'False'
+    rdb.set('showImagesReadingList',img_str)
+
     return redirect('/')
+
 
 @app.route('/sort_log/', methods=['POST','GET'])
 def sortLog():
-    print('sorting log, first get redis vars')
     global books
-    print('sortAtoZ: ' + str(sortAtoZ))
-    sort = str(rdb.get('sort'))
-    sortAtoZ = bool(rdb.get('sortAtoZ'))
-    print('sorting using...')
+    sort = rdb.get('sort').decode('utf-8')
+    sortAtoZ = (rdb.get('sortAtoZ').decode('utf-8') == 'True')
+
     if request.method == 'POST':
-        print('post')
         try:
             request.form['sortAuthor']
             print('sorting by author')
@@ -133,10 +128,6 @@ def sortLog():
             else:
                 sort = 'authorDown'
                 sortAtoZ = False
-            print('sortAtoZ is now: ' + str(sortAtoZ))
-            rdb.set('sort',sort)
-            rdb.set('sortAtoZ',int(sortAtoZ))
-            return redirect('/')
         except:
             pass
         try:
@@ -150,10 +141,6 @@ def sortLog():
             else:
                 sort = 'titleDown'
                 sortAtoZ = False
-            print('sortAtoZ is now: ' + str(sortAtoZ))
-            rdb.set('sort',sort)
-            rdb.set('sortAtoZ',int(sortAtoZ))
-            return redirect('/')
         except:
             pass
         try:
@@ -167,10 +154,6 @@ def sortLog():
             else:
                 sort = 'pagesDown'
                 sortAtoZ = False
-            print('sortAtoZ is now: ' + str(sortAtoZ))
-            rdb.set('sort',sort)
-            rdb.set('sortAtoZ',int(sortAtoZ))
-            return redirect('/')
         except:
             pass
         try:
@@ -184,10 +167,6 @@ def sortLog():
             else:
                 sort = 'pubDown'
                 sortAtoZ = False
-            print('sortAtoZ is now: ' + str(sortAtoZ))
-            rdb.set('sort',sort)
-            rdb.set('sortAtoZ',int(sortAtoZ))
-            return redirect('/')
         except:
             pass
         try:
@@ -201,15 +180,16 @@ def sortLog():
             else:
                 sort = 'addedDown'
                 sortAtoZ = False
-            print('sortAtoZ is now: ' + str(sortAtoZ))
-            rdb.set('sort',sort)
-            rdb.set('sortAtoZ',int(sortAtoZ))
-            print('verify sortAtoZ was updated: ' + str(rdb.get('sortAtoZ')))
-            return redirect('/')
         except:
             pass
+
+        sortAtoZ = 'True' if sortAtoZ else 'False'
+        rdb.set('sort',sort)
+        rdb.set('sortAtoZ',sortAtoZ)
+        return redirect('/')
+
+
     else:
-        print('get')
         if sort == 'titleUp':
             books = Booklog.query.order_by(Booklog.title).all()
         elif sort == 'titleDown':
@@ -239,18 +219,18 @@ def sortLog():
             sort = 'addedUp'
             books = Booklog.query.order_by(Booklog.date_started).all()
     
-    print('sortAtoZ is now: ' + str(sortAtoZ))
+    sortAtoZ = 'True' if sortAtoZ else 'False'
     rdb.set('sort',sort)
-    rdb.set('sortAtoZ',int(sortAtoZ))
+    rdb.set('sortAtoZ',sortAtoZ)
     return redirect('/')
 
 @app.route('/sort_reading_list/', methods=['POST','GET'])
 def sortReadingList():
     global readingListBooks
-    sortReadList = rdb.get('sortReadList')
-    sortAtoZReading = bool(rdb.get('sortAtoZReading'))
+    sortReadList = rdb.get('sortReadList').decode('utf-8')
+    sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
+
     if request.method == 'POST':
-        print('post')
         try:
             request.form['sortAuthor']
             print('sorting by author')
@@ -262,7 +242,6 @@ def sortReadingList():
             else:
                 sortReadList = 'authorDown'
                 sortAtoZReading = False
-            return redirect('/')
         except:
             pass
         try:
@@ -276,7 +255,6 @@ def sortReadingList():
             else:
                 sortReadList = 'titleDown'
                 sortAtoZReading = False
-            return redirect('/')
         except:
             pass
         try:
@@ -290,7 +268,6 @@ def sortReadingList():
             else:
                 sortReadList = 'pagesDown'
                 sortAtoZReading= False
-            return redirect('/')
         except:
             pass
         try:
@@ -304,11 +281,9 @@ def sortReadingList():
             else:
                 sortReadList = 'pubDown'
                 sortAtoZReading = False
-            return redirect('/')
         except:
             pass
     else:
-        print('get')
         if sortReadList == 'titleUp':
             readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
         elif sortReadList == 'titleDown':
@@ -333,18 +308,19 @@ def sortReadingList():
             sortReadList = 'addedUp'
             readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
     
-    rdb.set('sortReadList',str(sortReadList))
-    rdb.set('sortAtoZReading',int(sortAtoZReading))
+    sortAtoZReading = 'True' if sortAtoZReading else 'False'
+    rdb.set('sortReadList',sortReadList)
+    rdb.set('sortAtoZReading',sortAtoZReading)
     return redirect('/')
 
 @app.route('/sort_all/', methods=['GET'])
 def sortAll():
     global books
     global readingListBooks
-    sort = rdb.get('sort')
-    sortReadList = rdb.get('sortReadList')
-    sortAtoZ = bool(rdb.get('sortAtoZ'))
-    sortAtoZReading = bool(rdb.get('sortAtoZReading'))
+    sort = rdb.get('sort').decode('utf-8')
+    sortAtoZ = (rdb.get('sortAtoZ').decode('utf-8') == 'True')
+    sortReadList = rdb.get('sortReadList').decode('utf-8')
+    sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
     # Sort the log
     if sort == 'titleUp':
         books = Booklog.query.order_by(Booklog.title).all()
@@ -400,10 +376,13 @@ def sortAll():
         sortReadList = 'addedUp'
         readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
 
+    sortAtoZ = 'True' if sortAtoZ else 'False'
     rdb.set('sort',sort)
-    rdb.set('sortReadList',str(sortReadList))
-    rdb.set('sortAtoZ',int(sortAtoZ))
-    rdb.set('sortAtoZReading',int(sortAtoZReading))
+    rdb.set('sortAtoZ',sortAtoZ)
+
+    sortAtoZReading = 'True' if sortAtoZReading else 'False'
+    rdb.set('sortReadList',sortReadList)
+    rdb.set('sortAtoZReading',sortAtoZReading)
     return redirect('/')
 
 
@@ -415,7 +394,6 @@ def search():
         searchTerm.replace(' ','+')
         response = requests.get("https://www.googleapis.com/books/v1/volumes?q=" + searchTerm + "&orderBy=relevance&maxResults=40")
         results = json.loads(response.text)
-        print(results["totalItems"])
         if results["totalItems"] == 0:
             return render_template('error.html', msg='Search turned up empty, sorry.')
         else:
@@ -569,9 +547,7 @@ def markFinished():
 
 @app.route('/delete/<int:id>')
 def delete(id):
-    print(id)
     book_to_delete = Booklog.query.get_or_404(id)
-    print('deleting ' + book_to_delete.title)
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
@@ -582,9 +558,7 @@ def delete(id):
 
 @app.route('/delete_reading_list/<int:id>', methods=['GET'])
 def deleteReadingList(id):
-    print(id)
     book_to_delete = ReadingList.query.get_or_404(id)
-    print('deleting ' + book_to_delete.title)
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
@@ -597,7 +571,6 @@ def deleteReadingList(id):
 def edit_listing():
     if request.method == "POST":
         edits = request.get_json()
-        print(edits['id'])
         old_book = Booklog.query.filter_by(id=edits['id']).first()
         
         try:
@@ -617,7 +590,6 @@ def edit_listing():
 
 @app.route('/add_reading_list/', methods=['POST','GET'])
 def add_reading_list():
-    print('heyo')
     if request.method == 'POST':
         data = request.get_json()
         volumeID = data['volumeID']
