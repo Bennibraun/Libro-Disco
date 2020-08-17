@@ -17,6 +17,11 @@ SQLALCHEMY_BINDS = {
 
 rdb = redis.from_url(os.environ.get("REDISCLOUD_URL"))
 
+print('testing redis')
+test_str = 'test string'
+rdb.set('testStr',test_str)
+print(rdb.get('testStr'))
+
 db = SQLAlchemy(app)
 
 class Booklog(db.Model):
@@ -53,6 +58,7 @@ sort = ''
 sortReadList = ''
 sortAtoZ = True
 sortAtoZReading = True
+rdb.set('showImages','False')
 showImagesReadingList = False
 
 
