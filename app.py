@@ -66,7 +66,7 @@ showImagesReadingList = False
 def index():
     global books
     global readingListBooks
-    showImages = (rdb.get('showImages') == "True")
+    showImages = (rdb.get('showImages').decode('utf-8') == "True")
     print('drawing index with showImages = ' + str(showImages))
     showImagesReadingList = bool(rdb.get('showImagesReadingList'))
     sort = rdb.get('sort')
