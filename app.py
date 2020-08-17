@@ -231,6 +231,9 @@ def sortReadingList():
     sortReadList = rdb.get('sortReadList').decode('utf-8')
     sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
 
+    print('sort: ' + sortReadList)
+    print('AtoZ:' + str(sortAtoZReading))
+
     if request.method == 'POST':
         try:
             request.form['sortAuthor']
@@ -309,6 +312,8 @@ def sortReadingList():
             sortReadList = 'addedUp'
             readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
     
+    print('sort: ' + sortReadList)
+    print('AtoZ:' + str(sortAtoZReading))
     sortAtoZReading = 'True' if sortAtoZReading else 'False'
     rdb.set('sortReadList',sortReadList)
     rdb.set('sortAtoZReading',sortAtoZReading)
