@@ -53,7 +53,6 @@ sort = ''
 sortReadList = ''
 sortAtoZ = True
 sortAtoZReading = True
-showImages = False
 showImagesReadingList = False
 
 
@@ -61,7 +60,7 @@ showImagesReadingList = False
 def index():
     global books
     global readingListBooks
-    showImages = bool(rdb.get('showImages'))
+    showImages = (rdb.get('showImages') == "True")
     showImagesReadingList = bool(rdb.get('showImagesReadingList'))
     sort = rdb.get('sort')
 
@@ -89,13 +88,14 @@ def index():
 @app.route('/displayMode/', methods=['POST'])
 def switchDisplayMode():
     print('switching display modes')
-    showImages = bool(rdb.get('showImages'))
-    print('showImages: ' + str(rdb.get('showImages')))
-    print(int(showImages))
+    showImages = (rdb.get('showImages') == "True")
+    print('showImages: ' + rdb.get('showImages'))
+    print(showImages)
     showImages = not showImages
-    print(int(showImages))
-    rdb.set('showImages',int(showImages))
-    print('showImages: ' + str(rdb.get('showImages')))
+    print(showImages)
+    img_str = 'True' if showImages else 'False'
+    rdb.set('showImages',img_str)
+    print('showImages: ' + rdb.get('showImages'))
     return redirect('/')
 
 @app.route('/displayModeReadingList/', methods=['POST'])
