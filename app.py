@@ -312,11 +312,11 @@ def sortReadingList():
             sortReadList = 'addedUp'
             readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
     
-    print('sort: ' + sortReadList)
-    print('AtoZ:' + str(sortAtoZReading))
     sortAtoZReading = 'True' if sortAtoZReading else 'False'
     rdb.set('sortReadList',sortReadList)
     rdb.set('sortAtoZReading',sortAtoZReading)
+    print('sort: ' + rdb.get('sortReadList').decode('utf-8'))
+    print('AtoZ:' + rdb.get('sortAtoZReading').decode('utf-8'))
     return redirect('/')
 
 @app.route('/sort_all/', methods=['GET'])
