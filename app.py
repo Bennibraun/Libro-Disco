@@ -94,14 +94,14 @@ def index():
 @app.route('/displayMode/', methods=['POST'])
 def switchDisplayMode():
     print('switching display modes')
-    showImages = (rdb.get('showImages') == "True")
-    print('showImages: ' + rdb.get('showImages'))
+    showImages = (rdb.get('showImages').decode('utf-8') == "True")
+    print('showImages: ' + rdb.get('showImages').decode('utf-8'))
     print(showImages)
     showImages = not showImages
     print(showImages)
     img_str = 'True' if showImages else 'False'
     rdb.set('showImages',img_str)
-    print('showImages: ' + rdb.get('showImages'))
+    print('showImages: ' + rdb.get('showImages').decode('utf-8'))
     return redirect('/')
 
 @app.route('/displayModeReadingList/', methods=['POST'])
