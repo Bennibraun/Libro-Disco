@@ -121,6 +121,7 @@ th {
     width: 1%;
     border-right: none;
     border-left: none;
+    cursor: default;
 }
 
 .titleCol {
@@ -128,48 +129,56 @@ th {
     max-width: 30%;
     border-right: none;
     border-left: none;
+    cursor: pointer;
 }
 
 .authorCol {
     width: 16%;
     border-right: none;
     border-left: none;
+    cursor: pointer;
 }
 
 .pageCol {
     width: 7%;
     border-right: none;
     border-left: none;
+    cursor: pointer;
 }
 
 .pubDateCol {
     width: 7%;
     border-right: none;
     border-left: none;
+    cursor: pointer;
 }
 
 .startedCol {
     width: 10%;
     border-right: none;
     border-left: none;
+    cursor: pointer;
 }
 
 .finishedCol {
     width: 10%;
     border-right: none;
     border-left: none;
+    cursor: default;
 }
 
 .genresCol {
     width: 18%;
     border-right: none;
     border-left: none;
+    cursor: default;
 }
 
 .controlCol {
     width: 12%;
     border-right: none;
     border-left: none;
+    cursor: default;
 }
 
 .title {
