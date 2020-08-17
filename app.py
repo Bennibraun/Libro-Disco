@@ -20,7 +20,7 @@ rdb = redis.from_url(os.environ.get("REDISCLOUD_URL"))
 print('testing redis')
 test_str = 'test string'
 rdb.set('testStr',test_str)
-print(rdb.get('testStr'))
+print(rdb.get('testStr').decode('utf-8'))
 
 db = SQLAlchemy(app)
 
