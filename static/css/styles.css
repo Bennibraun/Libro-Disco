@@ -124,26 +124,26 @@ th {
 }
 
 .titleCol {
-    width: 25%;
+    width: 22%;
     max-width: 30%;
     border-right: none;
     border-left: none;
 }
 
 .authorCol {
-    width: 17%;
+    width: 16%;
     border-right: none;
     border-left: none;
 }
 
 .pageCol {
-    width: 5%;
+    width: 7%;
     border-right: none;
     border-left: none;
 }
 
 .pubDateCol {
-    width: 5%;
+    width: 7%;
     border-right: none;
     border-left: none;
 }
@@ -173,25 +173,25 @@ th {
 }
 
 .title {
-    width: 25%;
+    width: 22%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .author {
-    width: 17%;
+    width: 16%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .pages {
-    width: 5%;
+    width: 7%;
 }
 
 .publicationDate {
-    width: 5%;
+    width: 7%;
 }
 
 .dateStarted {
