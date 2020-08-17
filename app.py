@@ -91,7 +91,9 @@ def switchDisplayMode():
     print('switching display modes')
     showImages = bool(rdb.get('showImages'))
     print('showImages: ' + str(rdb.get('showImages')))
+    print(int(showImages))
     showImages = not showImages
+    print(int(showImages))
     rdb.set('showImages',int(showImages))
     print('showImages: ' + str(rdb.get('showImages')))
     return redirect('/')
@@ -107,12 +109,12 @@ def switchReadingDisplay():
 def sortLog():
     print('sorting log, first get redis vars')
     global books
+    print('sortAtoZ: ' + str(sortAtoZ))
     sort = str(rdb.get('sort'))
     sortAtoZ = bool(rdb.get('sortAtoZ'))
     print('sorting using...')
     if request.method == 'POST':
         print('post')
-        print('sortAtoZ: ' + str(sortAtoZ))
         try:
             request.form['sortAuthor']
             print('sorting by author')
