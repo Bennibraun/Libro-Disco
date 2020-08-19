@@ -47,6 +47,8 @@ class ReadingList(db.Model):
     def __repr__(self):
         return '<book %r>' % self.id
 
+print('resetting all')
+
 books = Booklog.query.order_by(Booklog.date_started).all()
 readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
 
@@ -66,15 +68,6 @@ def index():
     showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
     sort = rdb.get('sort').decode('utf-8')
     sortReadList = rdb.get('sortReadList').decode('utf-8')
-
-    for book in books:
-        books_json = {
-            'title':book.title,
-            'author':book.author,
-            'page_count':book.page_count,
-            'pub_date':book.pub_date
-        }
-        books_json = json.dumps(books_json)
     
     # Create 2d array for genre listings
     genres = []
@@ -82,7 +75,7 @@ def index():
         genre_list = book.genres.split(',')
         genres.append(genre_list)
 
-    print('rendering index.html as normal')
+    print('rendering index.html')
 
     return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres)
 
