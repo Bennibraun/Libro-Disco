@@ -187,6 +187,7 @@ def sortLog():
         sortAtoZ = 'True' if sortAtoZ else 'False'
         rdb.set('sort',sort)
         rdb.set('sortAtoZ',sortAtoZ)
+        print(sort)
         return redirect('/')
 
 
@@ -223,7 +224,6 @@ def sortLog():
     sortAtoZ = 'True' if sortAtoZ else 'False'
     rdb.set('sort',sort)
     rdb.set('sortAtoZ',sortAtoZ)
-    print(sort)
     return redirect('/')
 
 @app.route('/sort_reading_list/', methods=['POST','GET'])
