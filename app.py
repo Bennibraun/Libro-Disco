@@ -15,7 +15,12 @@ SQLALCHEMY_BINDS = {
     'readinglist': 'sqlite:///readinglist.db'
 }
 
-rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
+rdb = ''
+try:
+    url = urlparse.urlparse(os.environ.get('REDISCLOUD_URL'))
+    rdb = redis.Redis(host=url.hostname, port=url.port, password=url.password)
+except:
+    rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
 
 db = SQLAlchemy(app)
 
