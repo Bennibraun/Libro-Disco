@@ -77,6 +77,7 @@ def index():
         genre_list = book.genres.split(',')
         genres.append(genre_list)
 
+    print(books)
     print('rendering index.html')
 
     return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres, bookDebug=bookDebug)
