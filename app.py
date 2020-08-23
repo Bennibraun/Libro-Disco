@@ -15,7 +15,7 @@ SQLALCHEMY_BINDS = {
     'readinglist': 'sqlite:///readinglist.db'
 }
 
-rdb = redis.from_url(os.environ.get("REDISCLOUD_URL"))
+rdb = redis.from_url('redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com:18733')
 
 db = SQLAlchemy(app)
 
