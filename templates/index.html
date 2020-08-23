@@ -484,8 +484,6 @@
             var thumbnail = $("#img_url"+id).text();
             var volumeID = $("#volumeID"+id).text();
 
-            $("#deleteBtnSubmit"+id).trigger("click");
-
             $.ajax({
                 type: "POST",
                 url: '/edit_listing/',
@@ -501,7 +499,9 @@
                     'volumeID':volumeID
                 }),
                 contentType: "application/json",
-                success: function (data) {}
+                success: function (data) {
+                    $("#deleteBtnSubmit"+id).trigger("click");
+                }
             });
 
 
