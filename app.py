@@ -51,6 +51,7 @@ print('resetting all')
 
 books = Booklog.query.order_by(Booklog.date_started).all()
 readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
+bookDebug = 0
 
 rdb.set('sort','')
 rdb.set('sortReadList','')
@@ -64,6 +65,7 @@ rdb.set('showImagesReadingList','False')
 def index():
     global books
     global readingListBooks
+    global bookDebug
     showImages = (rdb.get('showImages').decode('utf-8') == 'True')
     showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
     sort = rdb.get('sort').decode('utf-8')
@@ -77,7 +79,7 @@ def index():
 
     print('rendering index.html')
 
-    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres)
+    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres, bookDebug=bookDebug)
 
 
 @app.route('/displayMode/', methods=['POST'])
@@ -107,6 +109,7 @@ def switchReadingDisplay():
 @app.route('/sort_log/', methods=['POST','GET'])
 def sortLog():
     global books
+    global bookDebug
     sort = rdb.get('sort').decode('utf-8')
     sortAtoZ = (rdb.get('sortAtoZ').decode('utf-8') == 'True')
 
@@ -115,6 +118,7 @@ def sortLog():
             request.form['sortAuthor']
             print('sorting by author')
             books = Booklog.query.order_by(Booklog.author).all()
+            bookDebug += 1
             if not sortAtoZ:
                 sort = 'authorUp'
                 books.reverse()
@@ -128,6 +132,7 @@ def sortLog():
             request.form['sortTitle']
             print('sorting by title')
             books = Booklog.query.order_by(Booklog.title).all()
+            bookDebug += 1
             if not sortAtoZ:
                 sort = 'titleUp'
                 books.reverse()
@@ -141,6 +146,7 @@ def sortLog():
             request.form['sortPageCount']
             print('sorting by page count')
             books = Booklog.query.order_by(Booklog.page_count).all()
+            bookDebug += 1
             if not sortAtoZ:
                 sort = 'pagesUp'
                 books.reverse()
@@ -154,6 +160,7 @@ def sortLog():
             request.form['sortPubDate']
             print('sorting by publication date')
             books = Booklog.query.order_by(Booklog.pub_date).all()
+            bookDebug += 1
             if not sortAtoZ:
                 sort = 'pubUp'
                 books.reverse()
@@ -167,6 +174,7 @@ def sortLog():
             request.form['sortDateAdded']
             print('sorting by date added')
             books = Booklog.query.order_by(Booklog.date_started).all()
+            bookDebug += 1
             if not sortAtoZ:
                 sort = 'addedUp'
                 books.reverse()
