@@ -15,7 +15,7 @@ SQLALCHEMY_BINDS = {
     'readinglist': 'sqlite:///readinglist.db'
 }
 
-rdb = redis.from_url('redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com:18733')
+rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
 
 db = SQLAlchemy(app)
 
@@ -47,11 +47,8 @@ class ReadingList(db.Model):
     def __repr__(self):
         return '<book %r>' % self.id
 
-print('resetting all')
-
 books = Booklog.query.order_by(Booklog.date_started).all()
 readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-bookDebug = 0
 
 rdb.set('sort','')
 rdb.set('sortReadList','')
@@ -65,7 +62,6 @@ rdb.set('showImagesReadingList','False')
 def index():
     global books
     global readingListBooks
-    global bookDebug
     showImages = (rdb.get('showImages').decode('utf-8') == 'True')
     showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
     sort = rdb.get('sort').decode('utf-8')
@@ -74,13 +70,15 @@ def index():
     # Create 2d array for genre listings
     genres = []
     for book in books:
-        genre_list = book.genres.split(',')
-        genres.append(genre_list)
+        try:
+            genre_list = book.genres.split(',')
+            genres.append(genre_list)
+        except:
+            print('failed to parse genre')
 
-    print(books)
     print('rendering index.html')
 
-    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres, bookDebug=bookDebug)
+    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres)
 
 
 @app.route('/displayMode/', methods=['POST'])
@@ -110,7 +108,6 @@ def switchReadingDisplay():
 @app.route('/sort_log/', methods=['POST','GET'])
 def sortLog():
     global books
-    global bookDebug
     sort = rdb.get('sort').decode('utf-8')
     sortAtoZ = (rdb.get('sortAtoZ').decode('utf-8') == 'True')
 
@@ -119,7 +116,6 @@ def sortLog():
             request.form['sortAuthor']
             print('sorting by author')
             books = Booklog.query.order_by(Booklog.author).all()
-            bookDebug += 1
             if not sortAtoZ:
                 sort = 'authorUp'
                 books.reverse()
@@ -133,7 +129,6 @@ def sortLog():
             request.form['sortTitle']
             print('sorting by title')
             books = Booklog.query.order_by(Booklog.title).all()
-            bookDebug += 1
             if not sortAtoZ:
                 sort = 'titleUp'
                 books.reverse()
@@ -147,7 +142,6 @@ def sortLog():
             request.form['sortPageCount']
             print('sorting by page count')
             books = Booklog.query.order_by(Booklog.page_count).all()
-            bookDebug += 1
             if not sortAtoZ:
                 sort = 'pagesUp'
                 books.reverse()
@@ -161,7 +155,6 @@ def sortLog():
             request.form['sortPubDate']
             print('sorting by publication date')
             books = Booklog.query.order_by(Booklog.pub_date).all()
-            bookDebug += 1
             if not sortAtoZ:
                 sort = 'pubUp'
                 books.reverse()
@@ -175,7 +168,6 @@ def sortLog():
             request.form['sortDateAdded']
             print('sorting by date added')
             books = Booklog.query.order_by(Booklog.date_started).all()
-            bookDebug += 1
             if not sortAtoZ:
                 sort = 'addedUp'
                 books.reverse()
@@ -528,7 +520,8 @@ def select_volume():
         print(volumeID)
         db.session.add(Booklog(title=book["title"], author=author, page_count=book["pageCount"], pub_date=book["publishedDate"][0:4], img_url=img["thumbnail"], volume_id=volumeID, genres=genres))
         db.session.commit()
-    return redirect('sort_log/')
+    
+    return redirect(url_for('sortLog'))
 
 @app.route('/set_genres/', methods=['POST'])
 def set_genres():
@@ -560,7 +553,6 @@ def delete(id):
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
-        print('deleting' + book_to_delete)
         return redirect('/sort_log/')
     except:
         return render_template('error.html',msg='Error in delete() fn')

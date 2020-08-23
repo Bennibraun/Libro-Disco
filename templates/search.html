@@ -83,12 +83,7 @@
                                         }),
                                         contentType: "application/json",
                                         success: function () {
-                                            if (flask_url == '/select_volume/') {
-                                                window.location = "sort_log/";
-                                            }
-                                            else if (flask_url == '/add_reading_list/') {
-                                                window.location = "/sort_reading_list/";
-                                            }
+                                            window.location = "/sort_all/";
                                         }
                                     });
                                 }
