@@ -1,5 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager
 from datetime import date
 from dateutil.parser import parse
 import requests
@@ -7,6 +9,7 @@ import json
 import sys
 import os
 import redis
+import psycopg2
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///booklog.db'
@@ -14,6 +17,13 @@ app.config['DEBUG'] = True
 SQLALCHEMY_BINDS = {
     'readinglist': 'sqlite:///readinglist.db'
 }
+
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+if __name__ == '__main__':
+    manager.run()
 
 rdb = redis.from_url(os.environ.get("REDISCLOUD_URL"))
 
@@ -551,7 +561,7 @@ def markFinished():
         book.date_finished = formatted_date
         db.session.commit()
 
-    return redirect('sort_log/')
+    return redirect('/sort_log/')
 
 
 @app.route('/delete/<int:id>')
@@ -560,7 +570,8 @@ def delete(id):
     try:
         db.session.delete(book_to_delete)
         db.session.commit()
-        return redirect('sort_log/')
+        print('deleting' + book_to_delete)
+        return redirect('/sort_log/')
     except:
         return render_template('error.html',msg='Error in delete() fn')
 
