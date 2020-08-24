@@ -12,8 +12,10 @@ idna==2.10
 itsdangerous==1.1.0
 Jinja2==2.11.2
 MarkupSafe==1.1.1
+PIL==1.1.7
 Pillow==7.2.0
 pillowcase==2.0.0
+psycopg2-binary==2.8.5
 python-dateutil==2.8.1
 redis==3.5.3
 requests==2.24.0

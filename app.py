@@ -1,5 +1,4 @@
 from flask import Flask, render_template, url_for, request, redirect
-from flask_sqlalchemy import SQLAlchemy
 from datetime import date
 from dateutil.parser import parse
 import requests
@@ -7,14 +6,13 @@ import json
 import sys
 import os
 import redis
+import psycopg2
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///booklog.db'
 app.config['DEBUG'] = True
-SQLALCHEMY_BINDS = {
-    'readinglist': 'sqlite:///readinglist.db'
-}
 
+
+# Connect to redis db for variable consistency
 rdb = ''
 try:
     url = urlparse.urlparse(os.environ.get('REDISCLOUD_URL'))
@@ -22,39 +20,7 @@ try:
 except:
     rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
 
-db = SQLAlchemy(app)
-
-class Booklog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200),nullable=False)
-    author = db.Column(db.String(200),nullable=True)
-    page_count = db.Column(db.Integer,nullable=True)
-    pub_date = db.Column(db.String(4),nullable=True)
-    volume_id = db.Column(db.String(15),nullable=True)
-    img_url = db.Column(db.String(100),nullable=True)
-    date_started = db.Column(db.Date,default=date.today)
-    date_finished = db.Column(db.Date,default=None,nullable=True)
-    genres = db.Column(db.Text(),nullable=True)
-
-    # Called every time a new element is added to the db
-    def __repr__(self):
-        return '<book %r>' % self.id
-
-class ReadingList(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200),nullable=False)
-    author = db.Column(db.String(200),nullable=True)
-    page_count = db.Column(db.Integer,nullable=True)
-    pub_date = db.Column(db.String(4),nullable=True)
-    volume_id = db.Column(db.String(15),nullable=True)
-    img_url = db.Column(db.String(100),nullable=True)
-
-    def __repr__(self):
-        return '<book %r>' % self.id
-
-books = Booklog.query.order_by(Booklog.date_started).all()
-readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-
+# Set default vars
 rdb.set('sort','')
 rdb.set('sortReadList','')
 rdb.set('sortAtoZ','True')
@@ -62,6 +28,38 @@ rdb.set('sortAtoZReading','True')
 rdb.set('showImages','False')
 rdb.set('showImagesReadingList','False')
 
+
+# Connect to postgresql db
+conn = ''
+try:
+    conn = psycopg2.connect(os.environ['DATABASE_URL'], sslmode='require')
+    print('connected through heroku')
+except:
+    conn = psycopg2.connect(r'postgres://nicezipewxxlao:1472fb03b8bd3e997b12a13299286bc00fe0c274d11785feee18487757e48525@ec2-34-197-141-7.compute-1.amazonaws.com:5432/ddf9rpbt51qrpp')
+    print('connected through url directly')
+
+# Set cursor
+cur = conn.cursor()
+
+# Make default queries
+books_def_query = """
+SELECT * FROM books
+ORDER BY date_started DESC;
+"""
+cur.execute(books_def_query)
+books = cur.fetchall()
+
+readinglist_def_query = """
+SELECT * FROM reading_list
+ORDER BY title ASC;
+"""
+cur.execute(readinglist_def_query)
+readingListBooks = cur.fetchall()
+
+# books = Booklog.query.order_by(Booklog.date_started).all()
+# readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
+
+# Begin app
 
 @app.route('/')
 def index():
