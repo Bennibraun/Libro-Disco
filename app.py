@@ -7,6 +7,7 @@ import sys
 import os
 import redis
 import psycopg2
+import urlparse
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -118,27 +119,30 @@ def sortLog():
         try:
             request.form['sortAuthor']
             print('sorting by author')
-            books = Booklog.query.order_by(Booklog.author).all()
             if not sortAtoZ:
+                cur.execute('SELECT * FROM books ORDER BY author ASC;')
                 sort = 'authorUp'
                 books.reverse()
                 sortAtoZ = True
             else:
+                cur.execute('SELECT * FROM books ORDER BY author DESC;')
                 sort = 'authorDown'
                 sortAtoZ = False
+            books = cur.fetchall()
         except:
             pass
         try:
             request.form['sortTitle']
             print('sorting by title')
-            books = Booklog.query.order_by(Booklog.title).all()
             if not sortAtoZ:
+                cur.execute('SELECT * FROM books ORDER BY title ASC;')
                 sort = 'titleUp'
-                books.reverse()
                 sortAtoZ = True
             else:
+                cur.execute('SELECT * FROM books ORDER BY title DESC;')
                 sort = 'titleDown'
                 sortAtoZ = False
+            books = cur.fetchall()
         except:
             pass
         try:
@@ -146,12 +150,14 @@ def sortLog():
             print('sorting by page count')
             books = Booklog.query.order_by(Booklog.page_count).all()
             if not sortAtoZ:
+                cur.execute('SELECT * FROM page_count ORDER BY title ASC;')
                 sort = 'pagesUp'
-                books.reverse()
                 sortAtoZ = True
             else:
+                cur.execute('SELECT * FROM page_count ORDER BY title DESC;')
                 sort = 'pagesDown'
                 sortAtoZ = False
+            books = cur.fetchall()
         except:
             pass
         try:
@@ -159,10 +165,11 @@ def sortLog():
             print('sorting by publication date')
             books = Booklog.query.order_by(Booklog.pub_date).all()
             if not sortAtoZ:
+                cur.execute('SELECT * FROM page_count ORDER BY title DESC;')
                 sort = 'pubUp'
-                books.reverse()
                 sortAtoZ = True
             else:
+                cur.execute('SELECT * FROM page_count ORDER BY title DESC;')
                 sort = 'pubDown'
                 sortAtoZ = False
         except:
