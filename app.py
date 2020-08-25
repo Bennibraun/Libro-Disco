@@ -7,7 +7,7 @@ import sys
 import os
 import redis
 import psycopg2
-import urlparse
+# import urlparse
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -22,8 +22,8 @@ except:
     rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
 
 # Set default vars
-rdb.set('sort','')
-rdb.set('sortReadList','')
+rdb.set('sort','title')
+rdb.set('sortReadList','title')
 rdb.set('sortAtoZ','True')
 rdb.set('sortAtoZReading','True')
 rdb.set('showImages','False')
@@ -57,20 +57,66 @@ ORDER BY title ASC;
 cur.execute(readinglist_def_query)
 readingListBooks = cur.fetchall()
 
-# books = Booklog.query.order_by(Booklog.date_started).all()
-# readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
+
+# Classes to use to bridge the gap between sql query and jinja2-usable object
+class logBook:
+    def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url,date_started,date_finished):
+        self.id = id
+        self.title = title
+        self.author = author
+        self.page_count = page_count
+        self.pub_date = pub_date
+        self.volume_id = volume_id
+        self.img_url = img_url
+        self.date_started = date_started
+        self.date_finished = date_finished
+
+class readingListBook:
+    def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url):
+        self.id = id
+        self.title = title
+        self.author = author
+        self.page_count = page_count
+        self.pub_date = pub_date
+        self.volume_id = volume_id
+        self.img_url = img_url
 
 # Begin app
 
 @app.route('/')
 def index():
-    global books
-    global readingListBooks
+
     showImages = (rdb.get('showImages').decode('utf-8') == 'True')
     showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
     sort = rdb.get('sort').decode('utf-8')
     sortReadList = rdb.get('sortReadList').decode('utf-8')
+    sortAtoZ = (rdb.get('sortAtoZ').decode('utf-8') == 'True')
+    sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
     
+    # Get books from db
+    book_query = 'SELECT * FROM books ORDER BY ' + sort + ' '
+    if (sortAtoZ):
+        book_query += 'DESC;'
+    else:
+        book_query += 'ASC;'
+    cur.execute(book_query)
+    books_result = cur.fetchall()
+
+    # Get reading list from db
+    reading_query = 'SELECT * FROM reading_list ORDER BY ' + sortReadList + ' '
+    if (sortAtoZReading):
+        reading_query += 'DESC;'
+    else:
+        reading_query += 'ASC;'
+    cur.execute(reading_query)
+    readingListBooks_result = cur.fetchall()
+
+    books = []
+    for result in books_result:
+        book = logBook(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
+        book.pub_date = str(book.pub_date)[:4]
+        books.append(book)
+
     # Create 2d array for genre listings
     genres = []
     for book in books:
@@ -78,319 +124,121 @@ def index():
             genre_list = book.genres.split(',')
             genres.append(genre_list)
         except:
-            print('failed to parse genre')
+            pass
+            # print('failed to parse genre')
 
     print('rendering index.html')
 
-    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortReadList=sortReadList, genres=genres)
+    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortAtoZ=sortAtoZ, sortReadList=sortReadList, sortAtoZReading=sortAtoZReading, genres=genres)
 
 
-@app.route('/displayMode/', methods=['POST'])
-def switchDisplayMode():
-    showImages = (rdb.get('showImages').decode('utf-8') == 'True')
+# @app.route('/displayMode/', methods=['POST'])
+# def switchDisplayMode():
+#     showImages = (rdb.get('showImages').decode('utf-8') == 'True')
 
-    showImages = not showImages
+#     showImages = not showImages
 
-    img_str = 'True' if showImages else 'False'
-    rdb.set('showImages',img_str)
+#     img_str = 'True' if showImages else 'False'
+#     rdb.set('showImages',img_str)
 
-    return redirect('/')
+#     return redirect('/')
 
 
-@app.route('/displayModeReadingList/', methods=['POST'])
-def switchReadingDisplay():
-    showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
+# @app.route('/displayModeReadingList/', methods=['POST'])
+# # def switchReadingDisplay():
+#     showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
 
-    showImagesReadingList = not showImagesReadingList
+#     showImagesReadingList = not showImagesReadingList
 
-    img_str = 'True' if showImagesReadingList else 'False'
-    rdb.set('showImagesReadingList',img_str)
+#     img_str = 'True' if showImagesReadingList else 'False'
+#     rdb.set('showImagesReadingList',img_str)
 
-    return redirect('/')
+#     return redirect('/')
 
 
 @app.route('/sort_log/', methods=['POST','GET'])
 def sortLog():
-    global books
     sort = rdb.get('sort').decode('utf-8')
     sortAtoZ = (rdb.get('sortAtoZ').decode('utf-8') == 'True')
 
     if request.method == 'POST':
         try:
-            request.form['sortAuthor']
-            print('sorting by author')
-            if not sortAtoZ:
-                cur.execute('SELECT * FROM books ORDER BY author ASC;')
-                sort = 'authorUp'
-                books.reverse()
-                sortAtoZ = True
-            else:
-                cur.execute('SELECT * FROM books ORDER BY author DESC;')
-                sort = 'authorDown'
-                sortAtoZ = False
-            books = cur.fetchall()
+            request.form['sortTitle']
+            print('sorting by title')
+            sort = 'title'
+            sortAtoZ = not sortAtoZ
         except:
             pass
         try:
-            request.form['sortTitle']
-            print('sorting by title')
-            if not sortAtoZ:
-                cur.execute('SELECT * FROM books ORDER BY title ASC;')
-                sort = 'titleUp'
-                sortAtoZ = True
-            else:
-                cur.execute('SELECT * FROM books ORDER BY title DESC;')
-                sort = 'titleDown'
-                sortAtoZ = False
-            books = cur.fetchall()
+            request.form['sortAuthor']
+            print('sorting by author')
+            sort = 'author'
+            sortAtoZ = not sortAtoZ
         except:
             pass
         try:
             request.form['sortPageCount']
             print('sorting by page count')
-            books = Booklog.query.order_by(Booklog.page_count).all()
-            if not sortAtoZ:
-                cur.execute('SELECT * FROM page_count ORDER BY title ASC;')
-                sort = 'pagesUp'
-                sortAtoZ = True
-            else:
-                cur.execute('SELECT * FROM page_count ORDER BY title DESC;')
-                sort = 'pagesDown'
-                sortAtoZ = False
-            books = cur.fetchall()
+            sort = 'page_count'
+            sortAtoZ = not sortAtoZ
         except:
             pass
         try:
             request.form['sortPubDate']
             print('sorting by publication date')
-            books = Booklog.query.order_by(Booklog.pub_date).all()
-            if not sortAtoZ:
-                cur.execute('SELECT * FROM page_count ORDER BY title DESC;')
-                sort = 'pubUp'
-                sortAtoZ = True
-            else:
-                cur.execute('SELECT * FROM page_count ORDER BY title DESC;')
-                sort = 'pubDown'
-                sortAtoZ = False
+            sort = 'pub_date'
+            sortAtoZ = not sortAtoZ
         except:
             pass
         try:
             request.form['sortDateAdded']
             print('sorting by date added')
-            books = Booklog.query.order_by(Booklog.date_started).all()
-            if not sortAtoZ:
-                sort = 'addedUp'
-                books.reverse()
-                sortAtoZ = True
-            else:
-                sort = 'addedDown'
-                sortAtoZ = False
+            sort = 'date_started'
+            sortAtoZ = not sortAtoZ
         except:
             pass
 
-        sortAtoZ = 'True' if sortAtoZ else 'False'
-        rdb.set('sort',sort)
-        rdb.set('sortAtoZ',sortAtoZ)
-        print(sort)
-        return redirect('/')
-
-
-    else:
-        if sort == 'titleUp':
-            books = Booklog.query.order_by(Booklog.title).all()
-        elif sort == 'titleDown':
-            books = Booklog.query.order_by(Booklog.title).all()
-            books.reverse()
-        elif sort == 'authorUp':
-            books = Booklog.query.order_by(Booklog.author).all()
-        elif sort == 'authorDown':
-            books = Booklog.query.order_by(Booklog.author).all()
-            books.reverse()
-        elif sort == 'pagesUp':
-            books = Booklog.query.order_by(Booklog.page_count).all()
-        elif sort == 'pagesDown':
-            books = Booklog.query.order_by(Booklog.page_count).all()
-            books.reverse()
-        elif sort == 'pubUp':
-            books = Booklog.query.order_by(Booklog.pub_date).all()
-        elif sort == 'pubDown':
-            books = Booklog.query.order_by(Booklog.pub_date).all()
-            books.reverse()
-        elif sort == 'addedUp':
-            books = Booklog.query.order_by(Booklog.date_started).all()
-        elif sort == 'addedDown':
-            books = Booklog.query.order_by(Booklog.date_started).all()
-            books.reverse()
-        else:
-            sort = 'addedUp'
-            books = Booklog.query.order_by(Booklog.date_started).all()
-    
     sortAtoZ = 'True' if sortAtoZ else 'False'
     rdb.set('sort',sort)
     rdb.set('sortAtoZ',sortAtoZ)
     return redirect('/')
 
+
 @app.route('/sort_reading_list/', methods=['POST','GET'])
 def sortReadingList():
-    global readingListBooks
     sortReadList = rdb.get('sortReadList').decode('utf-8')
     sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
 
-    print('sort: ' + sortReadList)
-    print('AtoZ:' + str(sortAtoZReading))
-
     if request.method == 'POST':
-        try:
-            request.form['sortAuthor']
-            print('sorting by author')
-            readingListBooks = ReadingList.query.order_by(ReadingList.author).all()
-            if not sortAtoZReading:
-                sortReadList = 'authorUp'
-                readingListBooks.reverse()
-                sortAtoZReading = True
-            else:
-                sortReadList = 'authorDown'
-                sortAtoZReading = False
-        except:
-            pass
         try:
             request.form['sortTitle']
             print('sorting by title')
-            readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-            if not sortAtoZReading:
-                sortReadList = 'titleUp'
-                readingListBooks.reverse()
-                sortAtoZReading= True
-            else:
-                sortReadList = 'titleDown'
-                sortAtoZReading = False
+            sortReadList = 'title'
+            sortAtoZReading = not sortAtoZReading
+        except:
+            pass
+        try:
+            request.form['sortAuthor']
+            print('sorting by author')
+            sortReadList = 'author'
+            sortAtoZReading = not sortAtoZReading
         except:
             pass
         try:
             request.form['sortPageCount']
             print('sorting by page count')
-            readingListBooks = ReadingList.query.order_by(ReadingList.page_count).all()
-            if not sortAtoZReading:
-                sortReadList = 'pagesUp'
-                readingListBooks.reverse()
-                sortAtoZReading = True
-            else:
-                sortReadList = 'pagesDown'
-                sortAtoZReading= False
+            sortReadList = 'pages'
+            sortAtoZReading = not sortAtoZReading
         except:
             pass
         try:
             request.form['sortPubDate']
             print('sorting by publication date')
-            readingListBooks = ReadingList.query.order_by(ReadingList.pub_date).all()
-            if not sortAtoZReading:
-                sortReadList = 'pubUp'
-                readingListBooks.reverse()
-                sortAtoZReading = True
-            else:
-                sortReadList = 'pubDown'
-                sortAtoZReading = False
+            sortReadList = 'pubDate'
+            sortAtoZReading = not sortAtoZReading
         except:
             pass
-    else:
-        if sortReadList == 'titleUp':
-            readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-        elif sortReadList == 'titleDown':
-            readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-            readingListBooks.reverse()
-        elif sortReadList == 'authorUp':
-            readingListBooks = ReadingList.query.order_by(ReadingList.author).all()
-        elif sortReadList == 'authorDown':
-            readingListBooks = ReadingList.query.order_by(ReadingList.author).all()
-            readingListBooks.reverse()
-        elif sortReadList == 'pagesUp':
-            readingListBooks = ReadingList.query.order_by(ReadingList.page_count).all()
-        elif sortReadList == 'pagesDown':
-            readingListBooks = ReadingList.query.order_by(ReadingList.page_count).all()
-            readingListBooks.reverse()
-        elif sortReadList == 'pubUp':
-            readingListBooks = ReadingList.query.order_by(ReadingList.pub_date).all()
-        elif sortReadList == 'pubDown':
-            readingListBooks = ReadingList.query.order_by(ReadingList.pub_date).all()
-            readingListBooks.reverse()
-        else:
-            sortReadList = 'addedUp'
-            readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
     
-    sortAtoZReading = 'True' if sortAtoZReading else 'False'
-    rdb.set('sortReadList',sortReadList)
-    rdb.set('sortAtoZReading',sortAtoZReading)
-    print('sort: ' + rdb.get('sortReadList').decode('utf-8'))
-    print('AtoZ:' + rdb.get('sortAtoZReading').decode('utf-8'))
-    return redirect('/')
-
-@app.route('/sort_all/', methods=['GET'])
-def sortAll():
-    global books
-    global readingListBooks
-    sort = rdb.get('sort').decode('utf-8')
-    sortAtoZ = (rdb.get('sortAtoZ').decode('utf-8') == 'True')
-    sortReadList = rdb.get('sortReadList').decode('utf-8')
-    sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
-    # Sort the log
-    if sort == 'titleUp':
-        books = Booklog.query.order_by(Booklog.title).all()
-    elif sort == 'titleDown':
-        books = Booklog.query.order_by(Booklog.title).all()
-        books.reverse()
-    elif sort == 'authorUp':
-        books = Booklog.query.order_by(Booklog.author).all()
-    elif sort == 'authorDown':
-        books = Booklog.query.order_by(Booklog.author).all()
-        books.reverse()
-    elif sort == 'pagesUp':
-        books = Booklog.query.order_by(Booklog.page_count).all()
-    elif sort == 'pagesDown':
-        books = Booklog.query.order_by(Booklog.page_count).all()
-        books.reverse()
-    elif sort == 'pubUp':
-        books = Booklog.query.order_by(Booklog.pub_date).all()
-    elif sort == 'pubDown':
-        books = Booklog.query.order_by(Booklog.pub_date).all()
-        books.reverse()
-    elif sort == 'addedUp':
-        books = Booklog.query.order_by(Booklog.date_started).all()
-    elif sort == 'addedDown':
-        books = Booklog.query.order_by(Booklog.date_started).all()
-        books.reverse()
-    else:
-        sort = 'addedUp'
-        books = Booklog.query.order_by(Booklog.date_started).all()
-    
-    # Sort the reading list
-    if sortReadList == 'titleUp':
-        readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-    elif sortReadList == 'titleDown':
-        readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-        readingListBooks.reverse()
-    elif sortReadList == 'authorUp':
-        readingListBooks = ReadingList.query.order_by(ReadingList.author).all()
-    elif sortReadList == 'authorDown':
-        readingListBooks = ReadingList.query.order_by(ReadingList.author).all()
-        readingListBooks.reverse()
-    elif sortReadList == 'pagesUp':
-        readingListBooks = ReadingList.query.order_by(ReadingList.page_count).all()
-    elif sortReadList == 'pagesDown':
-        readingListBooks = ReadingList.query.order_by(ReadingList.page_count).all()
-        readingListBooks.reverse()
-    elif sortReadList == 'pubUp':
-        readingListBooks = ReadingList.query.order_by(ReadingList.pub_date).all()
-    elif sortReadList == 'pubDown':
-        readingListBooks = ReadingList.query.order_by(ReadingList.pub_date).all()
-        readingListBooks.reverse()
-    else:
-        sortReadList = 'addedUp'
-        readingListBooks = ReadingList.query.order_by(ReadingList.title).all()
-
-    sortAtoZ = 'True' if sortAtoZ else 'False'
-    rdb.set('sort',sort)
-    rdb.set('sortAtoZ',sortAtoZ)
-
     sortAtoZReading = 'True' if sortAtoZReading else 'False'
     rdb.set('sortReadList',sortReadList)
     rdb.set('sortAtoZReading',sortAtoZReading)
@@ -442,7 +290,7 @@ def search():
                     volumeIDs.append(''.join(book["id"]))
                 except:
                     return redirect('/')
-            return render_template('search.html', img_url=img_url, results=results, titles=titles, authors=authors, pages=pages, publishDates=publishDates, volumeIDs=volumeIDs)
+            return render_template('search.html', searchTerm=searchTerm, img_url=img_url, results=results, titles=titles, authors=authors, pages=pages, publishDates=publishDates, volumeIDs=volumeIDs)
     else:
         return render_template('error.html', msg='failed to render search results')
 
@@ -454,6 +302,7 @@ def select_volume():
         author = data['author']
         bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
         book = json.loads(bookResponse.text)["volumeInfo"]
+        startDate = str(date.today())
         # Get cover image
         try:
             img = book["imageLinks"]
@@ -528,8 +377,10 @@ def select_volume():
         except:
             print('no categories present :(')
         print(volumeID)
-        db.session.add(Booklog(title=book["title"], author=author, page_count=book["pageCount"], pub_date=book["publishedDate"][0:4], img_url=img["thumbnail"], volume_id=volumeID, genres=genres))
-        db.session.commit()
+
+        print('trying to insert for selection, prolly won\'t work')
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\');')
+        conn.commit()
     
     return redirect(url_for('sortLog'))
 
@@ -550,30 +401,28 @@ def markFinished():
         except:
             formatted_date = date.today()
         
-        book = Booklog.query.filter_by(id=bookID).first()
-        book.date_finished = formatted_date
-        db.session.commit()
+        cur.execute('UPDATE books SET date_finished = '+str(formatted_date)+' WHERE id='+bookID)
+        conn.commit()
 
     return redirect('/sort_log/')
 
 
 @app.route('/delete/<int:id>')
 def delete(id):
-    book_to_delete = Booklog.query.get_or_404(id)
     try:
-        db.session.delete(book_to_delete)
-        db.session.commit()
+        cur.execute('DELETE FROM books WHERE id='+str(id)+';')
+        conn.commit()
         return redirect('/sort_log/')
     except:
+        print('delete failed')
         return render_template('error.html',msg='Error in delete() fn')
 
 
 @app.route('/delete_reading_list/<int:id>', methods=['GET'])
 def deleteReadingList(id):
-    book_to_delete = ReadingList.query.get_or_404(id)
     try:
-        db.session.delete(book_to_delete)
-        db.session.commit()
+        cur.execute('DELETE FROM reading_list WHERE id='+id)
+        conn.commit()
         return redirect('/sort_reading_list/')
     except:
         return render_template('error.html',msg='Error in delete() fn')
@@ -583,7 +432,8 @@ def deleteReadingList(id):
 def edit_listing():
     if request.method == "POST":
         edits = request.get_json()
-        old_book = Booklog.query.filter_by(id=edits['id']).first()
+        cur.execute("SELECT * FROM books WHERE id="+edits['id']+" LIMIT 1;")
+        old_book = cur.fetchall()
         
         try:
             edits['startDate'] = parse(edits['startDate'])
@@ -595,8 +445,10 @@ def edit_listing():
         except:
             edits['finishDate'] = old_book.date_finished
 
-        db.session.add(Booklog(title=edits['title'], author=edits['author'], page_count=edits['pages'], pub_date=edits['published'][0:4], date_started=edits["startDate"], date_finished=edits["finishDate"], img_url=edits["thumbnail"], volume_id=edits['volumeID']))
-        db.session.commit()
+        print('attempting to replace book with edited copy, likely to fail')
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+','+edits['published'][0:4]+',\''+edits["startDate"]+'\',\''+edits["finishDate"]+'\',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\');')
+        conn.commit()
+
 
     return redirect('/')
 
@@ -612,8 +464,11 @@ def add_reading_list():
             img = book["imageLinks"]
         except:
             img = {'thumbnail':'https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg'}
-        db.session.add(ReadingList(title=book["title"], author=author, page_count=book["pageCount"], pub_date=book["publishedDate"][0:4], img_url=img["thumbnail"], volume_id=volumeID))
-        db.session.commit()
+        
+        print('attempting to add book to reading list, likely to fail')
+        cur.execute('INSERT INTO reading_list (title,author,page_count,pub_date,img_url,volume_id) VALUES (\''+book["title"]+'\',\''+author+'\','+book["pageCount"]+','+book["publishedDate"][0:4]+',\''+img["thumbnail"]+'\',\''+volumeID+'\');')
+        conn.commit()
+
     return redirect('sort_log/')
 
 

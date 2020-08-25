@@ -28,28 +28,25 @@
 
         <div class="row">
             <div class="col-md-7" style="height: 50vh; border: none; overflow: hidden;">
-                {% if showImages %}
-                <div class="listHeaderMenu">
+                <div class="listHeaderMenu" style="display: none;">
                     <form action="sort_log/" method="post">
                         Sort by: 
-                        <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit">
-                        <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit">
-                        <input id="sortPageCount" name="sortPageCount" value="Page Count {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}" type="submit">
-                        <input id="sortPubDate" name="sortPubDate" value="Publication Date {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}" type="submit">
-                        <input id="sortDateAdded" name="sortDateAdded" value="Date Added {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit">
+                        <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'title' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
+                        <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'author' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
+                        <input id="sortPageCount" name="sortPageCount" value="Page Count {% if sort == 'pages' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
+                        <input id="sortPubDate" name="sortPubDate" value="Publication Date {% if sort == 'pubDate' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
+                        <input id="sortDateAdded" name="sortDateAdded" value="Date Added {% if sort == 'dateAdded' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
                     </form>
 
-                    <form action="/displayMode/" method="post" style="padding-left: 20px;">
-                        <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
-                    </form>
                 </div>
+                {% if showImages %}
                 <div id="tableContent" style="height: 40vh; overflow: overlay;">
                     <table class="table-wimg">
                         <tr class="bookRow"></tr>
-                        {% for i in range(books|length) %}
+                        {% for book in books %}
                             <tr class="bookRow">
                                 <td class="thumbnail">
-                                    <img id="thumbnail{{books[i].id}}" class="thumbnail" src="{{ books[i].img_url }}" />
+                                    <img id="thumbnail{{book['id']}}" class="thumbnail" src="{{ book['img_url'] }}" />
                                 </td>
                                 <td class="bookListing">
                                     <table>
@@ -70,12 +67,12 @@
                 {% else %}
                     <table class="table-list">
                         <tr class="listHeader">
-                            <th id="titleCol" class="titleCol">&nbspTitle {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}</th>
+                            <th id="titleCol" class="titleCol">&nbspTitle {% if sort == 'title' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
                             <th id="spacerCol" class="spacerCol"></th>
-                            <th id="authorCol" class="authorCol">Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}</th>
-                            <th id="pageCol" class="pageCol">Pg. {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}</th>
-                            <th id="pubDateCol" class="pubDateCol">Pub. {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}</th>
-                            <th id="startedCol" class="startedCol">Start {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}</th>
+                            <th id="authorCol" class="authorCol">Author {% if sort == 'author' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                            <th id="pageCol" class="pageCol">Pg. {% if sort == 'page_count' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
+                            <th id="pubDateCol" class="pubDateCol">Pub. {% if sort == 'pub_date' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
+                            <th id="startedCol" class="startedCol">Start {% if sort == 'date_started' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
                             <th id="finishedCol" class="finishedCol">Finish</th>
                             <th id="genresCol" class="genresCol">Genres</th>
                             <th id="controlCol" class="controlCol"></th>
@@ -405,10 +402,7 @@
                     contentType: "application/json",
                     success: function () {
                         $.ajax({
-                            url: '/delete_reading_list/'+id,
-                            success: function () {
-                                window.location = "/sort_all/"
-                            }
+                            url: '/delete_reading_list/'+id
                         });
                     }
                 });

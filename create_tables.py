@@ -20,7 +20,7 @@ def create_tables():
             page_count INTEGER,
             pub_date DATE,
             volume_id VARCHAR(30),
-            img_url VARCHAR(150),
+            img_url VARCHAR(300),
             date_started DATE,
             date_finished DATE,
             genres JSON
@@ -45,12 +45,4 @@ def create_tables():
 
     conn.commit()
 
-
-    sql = """
-    INSERT INTO books(title, author)
-    VALUES('SAMPLE TITLE HURRAY IT WORKED','NOT REALLY AN AUTHOR EUREKA!');
-    """
-
-    cur.execute(sql)
-
-    conn.commit()
+create_tables()
