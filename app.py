@@ -303,6 +303,7 @@ def select_volume():
         bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
         book = json.loads(bookResponse.text)["volumeInfo"]
         startDate = str(date.today())
+        book["title"] = book["title"].replace("'","''")
         # Get cover image
         try:
             img = book["imageLinks"]
@@ -373,12 +374,11 @@ def select_volume():
                     genres += 'Teen,'
                 if 'travel' in genre and 'Travel' not in genres:
                     genres += 'Travel,'
-                
         except:
             print('no categories present :(')
+        
         print(volumeID)
 
-        print('trying to insert for selection, prolly won\'t work')
         cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\');')
         conn.commit()
     
@@ -397,9 +397,9 @@ def markFinished():
         bookID = request.form['finishedBook']
         finishDate = request.form['finishDate']
         try:
-            formatted_date = parse(finishDate)
+            formatted_date = "'"+str(parse(finishDate))+"'"
         except:
-            formatted_date = date.today()
+            formatted_date = "'"+str(date.today())+"'"
         
         cur.execute('UPDATE books SET date_finished = '+str(formatted_date)+' WHERE id='+bookID)
         conn.commit()
@@ -433,20 +433,25 @@ def edit_listing():
     if request.method == "POST":
         edits = request.get_json()
         cur.execute("SELECT * FROM books WHERE id="+edits['id']+" LIMIT 1;")
-        old_book = cur.fetchall()
+        old_book = cur.fetchone()
+        print(old_book)
+        print(edits["finishDate"])
         
         try:
             edits['startDate'] = parse(edits['startDate'])
         except:
-            edits['startDate'] = old_book.date_started
+            edits['startDate'] = old_book[7]
         
         try:
-            edits['finishDate'] = parse(edits['finishDate'])
+            edits['finishDate'] = "'"+str(parse(edits['finishDate']))+"'"
         except:
-            edits['finishDate'] = old_book.date_finished
+            try:
+                edits['finishDate'] = "'"+str(parse(old_book[8]))+"'"
+            except:
+                edits['finishDate'] = 'Null'
 
         print('attempting to replace book with edited copy, likely to fail')
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+','+edits['published'][0:4]+',\''+edits["startDate"]+'\',\''+edits["finishDate"]+'\',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\');')
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\');')
         conn.commit()
 
 
