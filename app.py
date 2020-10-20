@@ -60,7 +60,7 @@ readingListBooks = cur.fetchall()
 
 # Classes to use to bridge the gap between sql query and jinja2-usable object
 class logBook:
-    def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url,date_started,date_finished):
+    def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url,date_started,date_finished,genres,review):
         self.id = id
         self.title = title
         self.author = author
@@ -70,6 +70,8 @@ class logBook:
         self.img_url = img_url
         self.date_started = date_started
         self.date_finished = date_finished
+        self.genres = genres
+        self.review = review
 
 class readingListBook:
     def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url):
@@ -113,23 +115,19 @@ def index():
 
     books = []
     for result in books_result:
-        book = logBook(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
+        book = logBook(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9],result[10])
         book.pub_date = str(book.pub_date)[:4]
+        if not book.genres:
+            book.genres = []
+        else:
+            book.genres = book.genres.split(',')
         books.append(book)
+        print(book.genres)
 
-    # Create 2d array for genre listings
-    genres = []
-    for book in books:
-        try:
-            genre_list = book.genres.split(',')
-            genres.append(genre_list)
-        except:
-            pass
-            # print('failed to parse genre')
 
     print('rendering index.html')
 
-    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortAtoZ=sortAtoZ, sortReadList=sortReadList, sortAtoZReading=sortAtoZReading, genres=genres)
+    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortAtoZ=sortAtoZ, sortReadList=sortReadList, sortAtoZReading=sortAtoZReading)
 
 
 # @app.route('/displayMode/', methods=['POST'])
@@ -250,7 +248,7 @@ def search():
     # Searches the google books API with the given query
     if request.method == 'POST':
         searchTerm = request.form['query']
-        searchTerm.replace(' ','+')
+        searchTerm = searchTerm.replace(' ','+')
         response = requests.get("https://www.googleapis.com/books/v1/volumes?q=" + searchTerm + "&orderBy=relevance&maxResults=40")
         results = json.loads(response.text)
         if results["totalItems"] == 0:
@@ -303,103 +301,104 @@ def select_volume():
         bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
         book = json.loads(bookResponse.text)["volumeInfo"]
         startDate = str(date.today())
-        book["title"] = book["title"].replace("'","''")
         # Get cover image
         try:
             img = book["imageLinks"]
         except:
             img = {'thumbnail':'https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg'}
         # Parse genres
-        genres = ''
+        genres = []
         try:
             book_genres = [x.lower() for x in book["categories"]]
             for genre in book_genres:
                 if 'philosophy' in genre and 'Philosophy' not in genres:
-                    genres += 'Philosophy,'
+                    genres.append('Philosophy')
                 if 'fantasy' in genre and 'Fantasy' not in genres:
-                    genres += 'Fantasy,'
+                    genres.append('Fantasy')
                 if 'science fiction' in genre and 'Sci-Fi' not in genres:
-                    genres += 'Sci-Fi,'
+                    genres.append('Sci-Fi')
                 if 'life science' in genre and 'Biology' not in genres:
-                    genres += 'Biology,'
+                    genres.append('Biology')
                 if 'astronomy' in genre and 'Astronomy' not in genres:
-                    genres += 'Astronomy,'
+                    genres.append('Astronomy')
                 if 'biography' in genre and 'Biography' not in genres:
-                    genres += 'Biography,'
+                    genres.append('Biography')
                 if 'business' in genre and 'Business' not in genres:
-                    genres += 'Business,'
+                    genres.append('Business')
                 if 'classic' in genre and 'Classic' not in genres:
-                    genres += 'Classic,'
+                    genres.append('Classic')
                 if 'graphic novel' in genre and 'Graphic Novel' not in genres:
-                    genres += 'Graphic Novel,'
+                    genres.append('Graphic Novel')
                 if 'computing' in genre and 'Computing' not in genres:
-                    genres += 'Computing,'
+                    genres.append('Computing')
                 if 'engineering' in genre and 'Engineering' not in genres:
-                    genres += 'Engineering,'
+                    genres.append('Engineering')
                 if 'health' in genre and 'Health' not in genres:
-                    genres += 'Health,'
+                    genres.append('Health')
                 if 'history' in genre and 'History' not in genres:
-                    genres += 'History,'
+                    genres.append('History')
                 if 'horror' in genre and 'Horror' not in genres:
-                    genres += 'Horror,'
+                    genres.append('Horror')
                 if 'humor' in genre and 'Humor' not in genres:
-                    genres += 'Humor,'
+                    genres.append('Humor')
                 if 'kids' in genre and 'Kids' not in genres:
-                    genres += 'Kids,'
+                    genres.append('Kids')
                 if 'law' in genre and 'Law' not in genres:
-                    genres += 'Law,'
+                    genres.append('Law')
                 if 'math' in genre and 'Math' not in genres:
-                    genres += 'Math,'
+                    genres.append('Math')
                 if 'military' in genre and 'Military' not in genres:
-                    genres += 'Military,'
+                    genres.append('Military')
                 if 'music' in genre and 'Music' not in genres:
-                    genres += 'Music,'
+                    genres.append('Music')
                 if 'mystery' in genre and 'Mystery' not in genres:
-                    genres += 'Mystery,'
+                    genres.append('Mystery')
                 if 'nature' in genre and 'Nature' not in genres:
-                    genres += 'Nature,'
+                    genres.append('Nature')
                 if 'poetry' in genre and 'Poetry' not in genres:
-                    genres += 'Poetry,'
+                    genres.append('Poetry')
                 if 'politics' in genre and 'Politics' not in genres:
-                    genres += 'Politics,'
+                    genres.append('Politics')
                 if 'psychology' in genre and 'Psychology' not in genres:
-                    genres += 'Psychology,'
+                    genres.append('Psychology')
                 if 'religion' in genre and 'Religion' not in genres:
-                    genres += 'Religion,'
+                    genres.append('Religion')
                 if 'romance' in genre and 'Romance' not in genres:
-                    genres += 'Romance,'
+                    genres.append('Romance')
                 if 'science' in genre and 'Science' not in genres:
-                    genres += 'Science,'
+                    genres.append('Science')
                 if 'teen' in genre and 'Teen' not in genres:
-                    genres += 'Teen,'
+                    genres.append('Teen')
                 if 'travel' in genre and 'Travel' not in genres:
-                    genres += 'Travel,'
+                    genres.append('Travel')
         except:
+            genres = []
             print('no categories present :(')
         
+        genres = ','.join(genres)
+
         print(volumeID)
 
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\');')
+        book['title'] = book['title'].replace('\'','\'\'')
+        author = author.replace('\'','\'\'')
+
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id,genres,review) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\',\''+genres+'\',\'Placeholder Review\');')
         conn.commit()
     
     return redirect(url_for('sortLog'))
 
-@app.route('/set_genres/', methods=['POST'])
-def set_genres():
-    print('setting genres')
-    genres_str = request.json['genres']
-    print(genres_str)
-    return redirect('/')
+# @app.route('/set_genres/', methods=['POST'])
+# def set_genres():
+#     print('setting genres')
+#     genres_str = request.json['genres']
+#     print(genres_str)
+#     return redirect('/')
 
 @app.route('/finish_book/', methods=['POST'])
 def markFinished():
     if request.method == 'POST':
         bookID = request.form['finishedBook']
-        finishDate = request.form['finishDate']
-        try:
-            formatted_date = "'"+str(parse(finishDate))+"'"
-        except:
-            formatted_date = "'"+str(date.today())+"'"
+        formatted_date = "'"+str(date.today())+"'"
         
         cur.execute('UPDATE books SET date_finished = '+str(formatted_date)+' WHERE id='+bookID)
         conn.commit()
@@ -434,8 +433,9 @@ def edit_listing():
         edits = request.get_json()
         cur.execute("SELECT * FROM books WHERE id="+edits['id']+" LIMIT 1;")
         old_book = cur.fetchone()
-        print(old_book)
-        print(edits["finishDate"])
+
+        edits['title'] = edits['title'].replace('\'','\'\'')
+        edits['author'] = edits['author'].replace('\'', '\'\'')
         
         try:
             edits['startDate'] = parse(edits['startDate'])
@@ -449,12 +449,25 @@ def edit_listing():
                 edits['finishDate'] = "'"+str(parse(old_book[8]))+"'"
             except:
                 edits['finishDate'] = 'Null'
+        
+        genresStr = ','.join(edits['genres'])
 
-        print('attempting to replace book with edited copy, likely to fail')
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\');')
+        review = str(old_book[10]).replace('\'','\'\'')
+
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id,genres,review) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\',\''+genresStr+'\',\''+review+'\');')
         conn.commit()
 
 
+    return redirect('/')
+
+@app.route('/edit_review/', methods=['POST'])
+def edit_review():
+    if request.method == 'POST':
+        data = request.get_json()
+        review = data['review'].replace('\'','\'\'')
+        cur.execute('UPDATE books SET review = \'' + review + '\' WHERE id=' + str(data['id']) + ';')
+        conn.commit()
+    
     return redirect('/')
 
 @app.route('/add_reading_list/', methods=['POST','GET'])
@@ -465,16 +478,18 @@ def add_reading_list():
         author = data['author']
         bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
         book = json.loads(bookResponse.text)["volumeInfo"]
+        book['title'] = book['title'].replace('\'','\'\'')
+        book['author'] = book['author'].replace('\'','\'\'')
         try:
             img = book["imageLinks"]
         except:
             img = {'thumbnail':'https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg'}
         
         print('attempting to add book to reading list, likely to fail')
-        cur.execute('INSERT INTO reading_list (title,author,page_count,pub_date,img_url,volume_id) VALUES (\''+book["title"]+'\',\''+author+'\','+book["pageCount"]+','+book["publishedDate"][0:4]+',\''+img["thumbnail"]+'\',\''+volumeID+'\');')
+        cur.execute('INSERT INTO reading_list (title,author,page_count,pub_date,img_url,volume_id) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\');')
         conn.commit()
 
-    return redirect('sort_log/')
+    return redirect('/sort_log/')
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Bookmark</title>
+<title>Libro Disco - Book Records</title>
 {% endblock %}
 
 {% block body %}
@@ -10,380 +10,358 @@
 <div class="content">
     <div class="container-fluid">
 
-
-        <div class="row">
-            <div class="col-md-3">
-                <h1>Book Log</h1>
-            </div>
-            <div class="col-md-6">
-                <form id="searchForm" action="/query/" method="POST" style="float: left;">
-                    <input id="query" type="text" name="query" placeholder="Search for a book by title, author, etc.">
-                    <input id="submitQuery" type="submit" value="Search">
-                </form>
-            </div>
-            <div class="col-md-3">
-            </div>
+    <div id="editOverlay">
+        <div id="editDiv">
         </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-3">
+            <h1>📚 Libro Disco 💿</h1>
+        </div>
+        <div class="col-md-6">
+            <form id="searchForm" action="/query/" method="POST" style="float: left;">
+                <input id="query" type="text" name="query" placeholder="Search for a book by title, author, etc.">
+                <input id="submitQuery" type="submit" value="Search">
+            </form>
+        </div>
+        <div class="col-md-3">
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12 table-responsive" style="height: 50vh; border: none;">
+            {% if showImages %}
+            <div id="tableContent" style="height: 40vh; overflow: overlay;">
+                <table class="table-wimg">
+                    <tr class="bookRow"></tr>
+                    {% for book in books %}
+                        <tr class="bookRow">
+                            <td class="thumbnail">
+                                <img id="thumbnail{{book['id']}}" class="thumbnail" src="{{ book['img_url'] }}" />
+                            </td>
+                            <td class="bookListing">
+                                <table>
+                                    <tr class="wimg"><td class="title-wimg"><h3>{{ books[i].title }}</h3></td></tr class="wimg">
+                                    <tr class="wimg"><td class="author-wimg"><h6>{{ books[i].author }}</h6></td></trclass="wimg">
+                                    {% if books[i].page_count != "" %}
+                                        <tr class="wimg"
+                                        class="wimg"><td class="pages-wimg">{{ books[i].page_count }} pages</td></tr>
+                                    {% endif %}
+                                    <tr class="wimg"><td class="publicationDate-wimg">Published {{ books[i].pub_date }}</td></tr>
+                                    <tr class="wimg"><td class="dateAdded-wimg">Added {{ books[i].date_added }}</td></trclass="wimg">
+                                </table>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {% else %}
+                <table class="table-list">
+                    <tr class="listHeader">
+                        <th id="titleCol" class="titleCol">&nbspTitle {% if sort == 'title' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                        <th id="spacerCol" class="spacerCol"></th>
+                        <th id="authorCol" class="authorCol">Author {% if sort == 'author' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                        <th id="pageCol" class="pageCol">Pg. {% if sort == 'page_count' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
+                        <th id="pubDateCol" class="pubDateCol">Pub. {% if sort == 'pub_date' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
+                        <th id="startedCol" class="startedCol">Start {% if sort == 'date_started' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                        <th id="finishedCol" class="finishedCol">Finish</th>
+                        <th id="genresCol" class="genresCol">Genres</th>
+                        <th id="reviewCol" class="reviewCol">Review</th>
+                        <th id="controlCol" class="controlCol"></th>
+                        <div style="display: none;">
+                        <form action="/sort_log/" method="post" style="display: none;">
+                            <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                            <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                            <input id="sortPageCount" name="sortPageCount" value="Pg. {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                            <input id="sortPubDate" name="sortPubDate" value="Pub. {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                            <input id="sortDateAdded" name="sortDateAdded" value="Start {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                        </form>
+                        </div>
+
+                        <script>
+                            $("#titleCol").click(function() {
+                                $("#sortTitle").click();
+                            });
+                            $("#authorCol").click(function() {
+                                $("#sortAuthor").click();
+                            });
+                            $("#pageCol").click(function() {
+                                $("#sortPageCount").click();
+                            });
+                            $("#pubDateCol").click(function() {
+                                $("#sortPubDate").click();
+                            });
+                            $("#startedCol").click(function() {
+                                $("#sortDateAdded").click();
+                            });
+                        </script>
+                    </tr>
+                </table>
+
+                <div id="tableContent" style="height: 40vh; overflow: overlay;">
+                <table class="table-list">
+                    
+
+                    {% for i in range(books|length) %}
+                        <tr class="bookRow">
+                            <td class="title" id="title{{books[i].id}}">{{ books[i].title }}</td>
+                            <td class="spacerCol"></td>
+                            <td class="author" id="author{{books[i].id}}">{{ books[i].author }}</td>
+                            {% if books[i].page_count != "" %}
+                                <td class="pages" id="pages{{books[i].id}}">{{ books[i].page_count }}</td>
+                            {% endif %}
+                            <td class="publicationDate" id="pubDate{{books[i].id}}">{{ books[i].pub_date }}</td>
+                            <td class="dateStarted" id="startDate{{books[i].id}}">{{ books[i].date_started }}</td>
+                            {% if books[i].date_finished == None %}
+                                <td class="dateFinished" id="finishDate{{books[i].id}}">
+                                    <form action="/finish_book/" method="POST" style="float:left; width:100%">
+                                        <input id="finishedBook{{books[i].id}}" type="hidden" name="finishedBook" value={{books[i].id}}>
+                                        <button type="submit">Finished</button>
+                                    </form>
+                                </td>
+                            {% else %}
+                                <td class="dateFinished" id="finishDate{{books[i].id}}">{{ books[i].date_finished }}</td>
+                            {% endif %}
+                            <td id="genres{{books[i].id}}" class="genres">
+                                <div id="genresDisplay{{books[i].id}}" style="padding: 0px; background-color:inherit;">
+                                {% if books[i].genres is not none %}
+                                    {% for genre in books[i].genres %}
+                                        <a>{{ genre }} |</a>
+                                    {% endfor %}
+                                {% endif %}
+                                </div>
+                                <div id="genresSelect{{books[i].id}}" class="genresSelect" style="display: none; width: 100%; padding: 0px;">
+                                    <select id="select2List{{books[i].id}}" style="width: 100%;" multiple data-placeholder="Select genres">
+                                        <option value="0" {% if 'Astronomy' in books[i].genres %} selected {% endif %}>Astronomy</option>
+                                        <option value="0" {% if 'Biography' in books[i].genres %} selected {% endif %}>Biography</option>
+                                        <option value="0" {% if 'Business' in books[i].genres %} selected {% endif %}>Business</option>
+                                        <option value="0" {% if 'Classic' in books[i].genres %} selected {% endif %}>Classic</option>
+                                        <option value="0" {% if 'Graphic Novel' in books[i].genres %} selected {% endif %}>Graphic Novel</option>
+                                        <option value="0" {% if 'Computing' in books[i].genres %} selected {% endif %}>Computing</option>
+                                        <option value="0" {% if 'Engineering' in books[i].genres %} selected {% endif %}>Engineering</option>
+                                        <option value="0" {% if 'Fantasy' in books[i].genres %} selected {% endif %}>Fantasy</option>
+                                        <option value="0" {% if 'Health' in books[i].genres %} selected {% endif %}>Health</option>
+                                        <option value="0" {% if 'History' in books[i].genres %} selected {% endif %}>History</option>
+                                        <option value="0" {% if 'Horror' in books[i].genres %} selected {% endif %}>Horror</option>
+                                        <option value="0" {% if 'Humor' in books[i].genres %} selected {% endif %}>Humor</option>
+                                        <option value="0" {% if 'Kids' in books[i].genres %} selected {% endif %}>Kids</option>
+                                        <option value="0" {% if 'Law' in books[i].genres %} selected {% endif %}>Law</option>
+                                        <option value="0" {% if 'Math' in books[i].genres %} selected {% endif %}>Math</option>
+                                        <option value="0" {% if 'Military' in books[i].genres %} selected {% endif %}>Military</option>
+                                        <option value="0" {% if 'Music' in books[i].genres %} selected {% endif %}>Music</option>
+                                        <option value="0" {% if 'Mystery' in books[i].genres %} selected {% endif %}>Mystery</option>
+                                        <option value="0" {% if 'Nature' in books[i].genres %} selected {% endif %}>Nature</option>
+                                        <option value="0" {% if 'Philosophy' in books[i].genres %} selected {% endif %}>Philosophy</option>
+                                        <option value="0" {% if 'Poetry' in books[i].genres %} selected {% endif %}>Poetry</option>
+                                        <option value="0" {% if 'Politics' in books[i].genres %} selected {% endif %}>Politics</option>
+                                        <option value="0" {% if 'Psychology' in books[i].genres %} selected {% endif %}>Psychology</option>
+                                        <option value="0" {% if 'Religion' in books[i].genres %} selected {% endif %}>Religion</option>
+                                        <option value="0" {% if 'Romance' in books[i].genres %} selected {% endif %}>Romance</option>
+                                        <option value="0" {% if 'Science' in books[i].genres %} selected {% endif %}>Science</option>
+                                        <option value="0" {% if 'Sci-Fi' in books[i].genres %} selected {% endif %}>Sci-Fi</option>
+                                        <option value="0" {% if 'Teen' in books[i].genres %} selected {% endif %}>Teen</option>
+                                        <option value="0" {% if 'Travel' in books[i].genres %} selected {% endif %}>Travel</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td id="review{{books[i].id}}" class="review">
+                                <a>{{books[i].review}}</a>
+                            </td>
+                            <td id="bookControls{{books[i].id}}" class="bookControls">
+                                <button id="editBtn{{books[i].id}}" class="editBtn">📝 Edit</button>
+                            </td>
+                            <td id="volumeID{{books[i].id}}" style="display:none;">{{books[i].volume_id}}</td>
+                            <td id="img_url{{books[i].id}}" style="display:none;">{{books[i].img_url}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-12" style="height: 38vh; border: none; overflow: hidden;">
+        <div class="listHeaderMenu">
+            <form action="/reading_list/" method="post">
+                Sort by: 
+                <input id="sortTitle2" name="sortTitle" value="Title {% if sortReadList == 'titleUp' %}🔼{% elif sortReadList == 'titleDown' %}🔽{% endif %}" type="submit">
+                <input id="sortAuthor2" name="sortAuthor" value="Author {% if sortReadList == 'authorUp' %}🔼{% elif sortReadList == 'authorDown' %}🔽{% endif %}" type="submit">
+                <input id="sortPageCount2" name="sortPageCount" value="Page Count {% if sortReadList == 'pagesUp' %}🔼{% elif sortReadList == 'pagesDown' %}🔽{% endif %}" type="submit">
+                <input id="sortPubDate2" name="sortPubDate" value="Publication Date {% if sortReadList == 'pubUp' %}🔼{% elif sortReadList == 'pubDown' %}🔽{% endif %}" type="submit">
+            </form>
+    
+            <form action="/displayModeReadingList/" method="post" style="padding-left: 20px;">
+                <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
+            </form>
+        </div>
+        {% if showImagesReadingList %}
+        <div id="tableContent" style="height: 30vh; overflow: overlay;">
+            <table class="table-wimg">
+                <tr class="bookRow"></tr>
+                {% for i in range(booksToRead|length) %}
+                    <tr class="bookRow">
+                        <td class="thumbnail">
+                            <img id="thumbnail{{booksToRead[i].id}}" class="thumbnail" src="{{ booksToRead[i].img_url }}" />
+                        </td>
+                        <td class="bookListing">
+                            <table>
+                                <tr><td class="title-wimg"><h3>{{ booksToRead[i].title }}</h3></td></tr>
+                                <tr><td class="author-wimg"><h6>{{ booksToRead[i].author }}</h6></td></tr>
+                                {% if booksToRead[i].page_count != "" %}
+                                    <tr><td class="pages-wimg">{{ booksToRead[i].page_count }} pages</td></tr>
+                                {% endif %}
+                                <tr><td class="publicationDate-wimg">Published {{ booksToRead[i].pub_date }}</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+            <table class="table-list">
+                <tr class="listHeader">
+                    <th class="titleCol" style="width: 49%;">Title</th>
+                    <th class="spacerCol"></th>
+                    <th class="authorCol" style="width: 20%;">Author</th>
+                    <th class="pageCol" style="width: 8%;">Pg.</th>
+                    <th class="pubDateCol" style="width: 8%;">Pub.</th>
+                    <th class="bookControlsCol" style="width: 20%"></th>
+            </table>
+    
+            <div id="tableContent" style="height: 40vh; overflow: overlay;">
+            <table class="table-list">
+                
+    
+                {% for i in range(booksToRead|length) %}
+                    <tr class="bookRow">
+                        <td class="title" id="title{{booksToRead[i].id}}" style="width: 49%;">{{ booksToRead[i].title }}</td>
+                        <td class="spacerCol"></td>
+                        <td class="author" id="author{{booksToRead[i].id}}" style="width: 20%;">{{ booksToRead[i].author }}</td>
+                        {% if booksToRead[i].page_count != "" %}
+                            <td class="pages" id="pages{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].page_count }}</td>
+                        {% endif %}
+                        <td class="publicationDate" id="pubDate{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].pub_date }}</td>
+                        <td id="bookControls{{booksToRead[i].id}}" class="bookControls" style="width: 20%;">
+                            <button id="readBtn{{booksToRead[i].id}}" class="readBtn" style="float: left;">📖 Read Book</button>
+                        </td>
+                        <td id="volumeID{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].volume_id}}</td>
+                        <td id="img_url{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].img_url}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+    </div>
+
 
 
         <div class="row">
-            <div class="col-md-7 table-responsive" style="height: 50vh; border: none;">
-                <div class="listHeaderMenu" style="display: none;">
-                    <form action="sort_log/" method="post">
-                        Sort by: 
-                        <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'title' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
-                        <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'author' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
-                        <input id="sortPageCount" name="sortPageCount" value="Page Count {% if sort == 'pages' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
-                        <input id="sortPubDate" name="sortPubDate" value="Publication Date {% if sort == 'pubDate' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
-                        <input id="sortDateAdded" name="sortDateAdded" value="Date Added {% if sort == 'dateAdded' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}" type="submit">
-                    </form>
-
+            <div class="col-md-7">
+                <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
+                    <canvas id="GenreChart" width="400" height="400"></canvas>
                 </div>
-                {% if showImages %}
-                <div id="tableContent" style="height: 40vh; overflow: overlay;">
-                    <table class="table-wimg">
-                        <tr class="bookRow"></tr>
-                        {% for book in books %}
-                            <tr class="bookRow">
-                                <td class="thumbnail">
-                                    <img id="thumbnail{{book['id']}}" class="thumbnail" src="{{ book['img_url'] }}" />
-                                </td>
-                                <td class="bookListing">
-                                    <table>
-                                        <tr class="wimg"><td class="title-wimg"><h3>{{ books[i].title }}</h3></td></tr class="wimg">
-                                        <tr class="wimg"><td class="author-wimg"><h6>{{ books[i].author }}</h6></td></trclass="wimg">
-                                        {% if books[i].page_count != "" %}
-                                            <tr class="wimg"
-                                            class="wimg"><td class="pages-wimg">{{ books[i].page_count }} pages</td></tr>
-                                        {% endif %}
-                                        <tr class="wimg"><td class="publicationDate-wimg">Published {{ books[i].pub_date }}</td></tr>
-                                        <tr class="wimg"><td class="dateAdded-wimg">Added {{ books[i].date_added }}</td></trclass="wimg">
-                                    </table>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                {% else %}
-                    <table class="table-list">
-                        <tr class="listHeader">
-                            <th id="titleCol" class="titleCol">&nbspTitle {% if sort == 'title' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
-                            <th id="spacerCol" class="spacerCol"></th>
-                            <th id="authorCol" class="authorCol">Author {% if sort == 'author' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
-                            <th id="pageCol" class="pageCol">Pg. {% if sort == 'page_count' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
-                            <th id="pubDateCol" class="pubDateCol">Pub. {% if sort == 'pub_date' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
-                            <th id="startedCol" class="startedCol">Start {% if sort == 'date_started' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
-                            <th id="finishedCol" class="finishedCol">Finish</th>
-                            <th id="genresCol" class="genresCol">Genres</th>
-                            <th id="controlCol" class="controlCol"></th>
-                            <div style="display: none;">
-                            <form action="sort_log/" method="post" style="display: none;">
-                                <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                                <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                                <input id="sortPageCount" name="sortPageCount" value="Pg. {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                                <input id="sortPubDate" name="sortPubDate" value="Pub. {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                                <input id="sortDateAdded" name="sortDateAdded" value="Start {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                            </form>
-                            </div>
+                <script>
+                    Chart.defaults.global.responsive = true;
 
-                            <script>
-                                $("#titleCol").click(function() {
-                                    $("#sortTitle").click();
-                                });
-                                $("#authorCol").click(function() {
-                                    $("#sortAuthor").click();
-                                });
-                                $("#pageCol").click(function() {
-                                    $("#sortPageCount").click();
-                                });
-                                $("#pubDateCol").click(function() {
-                                    $("#sortPubDate").click();
-                                });
-                                $("#startedCol").click(function() {
-                                    $("#sortDateAdded").click();
-                                });
-                            </script>
-                        </tr>
-                    </table>
+                    
+                    var ctx = $('#GenreChart');
 
-                    <div id="tableContent" style="height: 40vh; overflow: overlay;">
-                    <table class="table-list">
-                        
+                    var genresList = [];
 
-                        {% for i in range(books|length) %}
-                            <tr class="bookRow">
-                                <td class="title" id="title{{books[i].id}}">{{ books[i].title }}</td>
-                                <td class="spacerCol"></td>
-                                <td class="author" id="author{{books[i].id}}">{{ books[i].author }}</td>
-                                {% if books[i].page_count != "" %}
-                                    <td class="pages" id="pages{{books[i].id}}">{{ books[i].page_count }}</td>
-                                {% endif %}
-                                <td class="publicationDate" id="pubDate{{books[i].id}}">{{ books[i].pub_date }}</td>
-                                <td class="dateStarted" id="startDate{{books[i].id}}">{{ books[i].date_started }}</td>
-                                {% if books[i].date_finished == None %}
-                                    <td class="dateFinished" id="finishDate{{books[i].id}}">
-                                        <form action="/finish_book/" method="POST" style="float:left;">
-                                            <input id="finishedBook{{books[i].id}}" type="hidden" name="finishedBook" value={{books[i].id}}>
-                                            <input id="finishDateField{{books[i].id}}" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;">
-                                        </form>
-                                    </td>
-                                {% else %}
-                                    <td class="dateFinished" id="finishDate{{books[i].id}}">{{ books[i].date_finished }}</td>
-                                {% endif %}
-                                <td id="genres{{books[i].id}}" class="genres">
-                                    <div style="padding: 0px; position:relative;">
-                                    <select class="genresSelect" multiple style="width: 100%; position: absolute;" data-placeholder="Select genres">
-                                        <option value="0" {% if 'Astronomy' in genres[i] %} selected {% else %} hidden {% endif %}>Astronomy</option>
-                                        <option value="0" {% if 'Biography' in genres[i] %} selected {% else %} hidden {% endif %}>Biography</option>
-                                        <option value="0" {% if 'Business' in genres[i] %} selected {% else %} hidden {% endif %}>Business</option>
-                                        <option value="0" {% if 'Classic' in genres[i] %} selected {% else %} hidden {% endif %}>Classic</option>
-                                        <option value="0" {% if 'Graphic Novel' in genres[i] %} selected {% else %} hidden {% endif %}>Graphic Novel</option>
-                                        <option value="0" {% if 'Computing' in genres[i] %} selected {% else %} hidden {% endif %}>Computing</option>
-                                        <option value="0" {% if 'Engineering' in genres[i] %} selected {% else %} hidden {% endif %}>Engineering</option>
-                                        <option value="0" {% if 'Fantasy' in genres[i] %} selected {% else %} hidden {% endif %}>Fantasy</option>
-                                        <option value="0" {% if 'Health' in genres[i] %} selected {% else %} hidden {% endif %}>Health</option>
-                                        <option value="0" {% if 'History' in genres[i] %} selected {% else %} hidden {% endif %}>History</option>
-                                        <option value="0" {% if 'Horror' in genres[i] %} selected {% else %} hidden {% endif %}>Horror</option>
-                                        <option value="0" {% if 'Humor' in genres[i] %} selected {% else %} hidden {% endif %}>Humor</option>
-                                        <option value="0" {% if 'Kids' in genres[i] %} selected {% else %} hidden {% endif %}>Kids</option>
-                                        <option value="0" {% if 'Law' in genres[i] %} selected {% else %} hidden {% endif %}>Law</option>
-                                        <option value="0" {% if 'Math' in genres[i] %} selected {% else %} hidden {% endif %}>Math</option>
-                                        <option value="0" {% if 'Military' in genres[i] %} selected {% else %} hidden {% endif %}>Military</option>
-                                        <option value="0" {% if 'Music' in genres[i] %} selected {% else %} hidden {% endif %}>Music</option>
-                                        <option value="0" {% if 'Mystery' in genres[i] %} selected {% else %} hidden {% endif %}>Mystery</option>
-                                        <option value="0" {% if 'Nature' in genres[i] %} selected {% else %} hidden {% endif %}>Nature</option>
-                                        <option value="0" {% if 'Philosophy' in genres[i] %} selected {% else %} hidden {% endif %}>Philosophy</option>
-                                        <option value="0" {% if 'Poetry' in genres[i] %} selected {% else %} hidden {% endif %}>Poetry</option>
-                                        <option value="0" {% if 'Politics' in genres[i] %} selected {% else %} hidden {% endif %}>Politics</option>
-                                        <option value="0" {% if 'Psychology' in genres[i] %} selected {% else %} hidden {% endif %}>Psychology</option>
-                                        <option value="0" {% if 'Religion' in genres[i] %} selected {% else %} hidden {% endif %}>Religion</option>
-                                        <option value="0" {% if 'Romance' in genres[i] %} selected {% else %} hidden {% endif %}>Romance</option>
-                                        <option value="0" {% if 'Science' in genres[i] %} selected {% else %} hidden {% endif %}>Science</option>
-                                        <option value="0" {% if 'Sci-Fi' in genres[i] %} selected {% else %} hidden {% endif %}>Sci-Fi</option>
-                                        <option value="0" {% if 'Teen' in genres[i] %} selected {% else %} hidden {% endif %}>Teen</option>
-                                        <option value="0" {% if 'Travel' in genres[i] %} selected {% else %} hidden {% endif %}>Travel</option>
-                                    </select>
-                                    </div>
-                                </td>
-                                <td id="bookControls{{books[i].id}}" class="bookControls">
-                                    <button id="editBtn{{books[i].id}}" class="editBtn">📝 Edit</button>
-                                </td>
-                                <td id="volumeID{{books[i].id}}" style="display:none;">{{books[i].volume_id}}</td>
-                                <td id="img_url{{books[i].id}}" style="display:none;">{{books[i].img_url}}</td>
-                            </tr>
-                        {% endfor %}
-                        <script>
-                            $(".genresSelect").chosen();
-
-                            // Set listeners to send added or removed genres to database
-                            $(".genresSelect").change(function() {
-                                var id = this.id.substring(6);
-                                var genres = "";
-                                {% for book in books %}
-                                    if (id == parseInt("{{book.id}}")) {
-                                        genres = "{{book.genres}}"
+                    var GenreChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
+                            datasets: [{
+                                label: ' # of books',
+                                data: [12, 19, 3, 5, 2, 3],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
                                     }
-                                {% endfor %}
-                                $.ajax({
-                                    type: "POST",
-                                    url: '/set_genres/',
-                                    data: JSON.stringify({'genres':genres}),
-                                    contentType: "application/json",
-                                    success: function () {}
-                                })
-                            });
-
-                            // My shitty attempt at trying to remove the obtrusive "chosen" dropdown menu while it's hidden
-                            // $('.active-result').livequery(function() {
-                            //     console.log('detected open')
-                            // }, function() {
-                            //     console.log('test');
-                            //     $(".chosen-results").empty();
-                            // });
-
-
-                        </script>
-                    </table>
-                    </div>
-                {% endif %}
-                </div>
-                
-
-                <div class="col-md-5" style="height: 38vh; border: none; overflow: hidden;">
-                <div class="listHeaderMenu">
-                    <form action="1reading_list/" method="post">
-                        Sort by: 
-                        <input id="sortTitle2" name="sortTitle" value="Title {% if sortReadList == 'titleUp' %}🔼{% elif sortReadList == 'titleDown' %}🔽{% endif %}" type="submit">
-                        <input id="sortAuthor2" name="sortAuthor" value="Author {% if sortReadList == 'authorUp' %}🔼{% elif sortReadList == 'authorDown' %}🔽{% endif %}" type="submit">
-                        <input id="sortPageCount2" name="sortPageCount" value="Page Count {% if sortReadList == 'pagesUp' %}🔼{% elif sortReadList == 'pagesDown' %}🔽{% endif %}" type="submit">
-                        <input id="sortPubDate2" name="sortPubDate" value="Publication Date {% if sortReadList == 'pubUp' %}🔼{% elif sortReadList == 'pubDown' %}🔽{% endif %}" type="submit">
-                    </form>
-
-                    <form action="/displayModeReadingList/" method="post" style="padding-left: 20px;">
-                        <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
-                    </form>
-                </div>
-                {% if showImagesReadingList %}
-                <div id="tableContent" style="height: 30vh; overflow: overlay;">
-                    <table class="table-wimg">
-                        <tr class="bookRow"></tr>
-                        {% for i in range(booksToRead|length) %}
-                            <tr class="bookRow">
-                                <td class="thumbnail">
-                                    <img id="thumbnail{{booksToRead[i].id}}" class="thumbnail" src="{{ booksToRead[i].img_url }}" />
-                                </td>
-                                <td class="bookListing">
-                                    <table>
-                                        <tr><td class="title-wimg"><h3>{{ booksToRead[i].title }}</h3></td></tr>
-                                        <tr><td class="author-wimg"><h6>{{ booksToRead[i].author }}</h6></td></tr>
-                                        {% if booksToRead[i].page_count != "" %}
-                                            <tr><td class="pages-wimg">{{ booksToRead[i].page_count }} pages</td></tr>
-                                        {% endif %}
-                                        <tr><td class="publicationDate-wimg">Published {{ booksToRead[i].pub_date }}</td></tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                {% else %}
-                    <table class="table-list">
-                        <tr class="listHeader">
-                            <th class="titleCol" style="width: 49%;">Title</th>
-                            <th class="spacerCol"></th>
-                            <th class="authorCol" style="width: 20%;">Author</th>
-                            <th class="pageCol" style="width: 8%;">Pg.</th>
-                            <th class="pubDateCol" style="width: 8%;">Pub.</th>
-                            <th class="bookControlsCol" style="width: 20%"></th>
-                    </table>
-
-                    <div id="tableContent" style="height: 40vh; overflow: overlay;">
-                    <table class="table-list">
-                        
-
-                        {% for i in range(booksToRead|length) %}
-                            <tr class="bookRow">
-                                <td class="title" id="title{{booksToRead[i].id}}" style="width: 49%;">{{ booksToRead[i].title }}</td>
-                                <td class="spacerCol"></td>
-                                <td class="author" id="author{{booksToRead[i].id}}" style="width: 20%;">{{ booksToRead[i].author }}</td>
-                                {% if booksToRead[i].page_count != "" %}
-                                    <td class="pages" id="pages{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].page_count }}</td>
-                                {% endif %}
-                                <td class="publicationDate" id="pubDate{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].pub_date }}</td>
-                                <td id="bookControls{{booksToRead[i].id}}" class="bookControls" style="width: 20%;">
-                                    <button id="readBtn{{booksToRead[i].id}}" class="readBtn" style="float: left;">📖 Read Book</button>
-                                </td>
-                                <td id="volumeID{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].volume_id}}</td>
-                                <td id="img_url{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].img_url}}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                    </div>
-                {% endif %}
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-md-7">
-                    <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
-                        <canvas id="GenreChart" width="400" height="400"></canvas>
-                    </div>
-                    <script>
-                        Chart.defaults.global.responsive = true;
-
-                        
-                        var ctx = $('#GenreChart');
-
-                        var genres = [];
-
-                        var GenreChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
-                                datasets: [{
-                                    label: ' # of books',
-                                    data: [12, 19, 3, 5, 2, 3],
-                                    backgroundColor: [
-                                        'rgba(255, 99, 132, 0.2)',
-                                        'rgba(54, 162, 235, 0.2)',
-                                        'rgba(255, 206, 86, 0.2)',
-                                        'rgba(75, 192, 192, 0.2)',
-                                        'rgba(153, 102, 255, 0.2)',
-                                        'rgba(255, 159, 64, 0.2)'
-                                    ],
-                                    borderColor: [
-                                        'rgba(255, 99, 132, 1)',
-                                        'rgba(54, 162, 235, 1)',
-                                        'rgba(255, 206, 86, 1)',
-                                        'rgba(75, 192, 192, 1)',
-                                        'rgba(153, 102, 255, 1)',
-                                        'rgba(255, 159, 64, 1)'
-                                    ],
-                                    borderWidth: 1
                                 }]
-                            },
-                            options: {
-                                scales: {
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true
-                                        }
-                                    }]
-                                }
                             }
-                        });
-                    </script>
+                        }
+                    });
+                </script>
 
-                    <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
-                        <canvas id="GenreChart2" width="400" height="400"></canvas>
-                    </div>
-                    <script>
-                        Chart.defaults.global.responsive = true;
-
-                        var ctx = $('#GenreChart2');
-                        var GenreChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
-                                datasets: [{
-                                    label: '# of Books Read',
-                                    data: [12, 19, 3, 5, 2, 3],
-                                    backgroundColor: [
-                                        'rgba(255, 99, 132, 0.2)',
-                                        'rgba(54, 162, 235, 0.2)',
-                                        'rgba(255, 206, 86, 0.2)',
-                                        'rgba(75, 192, 192, 0.2)',
-                                        'rgba(153, 102, 255, 0.2)',
-                                        'rgba(255, 159, 64, 0.2)'
-                                    ],
-                                    borderColor: [
-                                        'rgba(255, 99, 132, 1)',
-                                        'rgba(54, 162, 235, 1)',
-                                        'rgba(255, 206, 86, 1)',
-                                        'rgba(75, 192, 192, 1)',
-                                        'rgba(153, 102, 255, 1)',
-                                        'rgba(255, 159, 64, 1)'
-                                    ],
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                scales: {
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true
-                                        }
-                                    }]
-                                }
-                            }
-                        });
-                    </script>
+                <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
+                    <canvas id="GenreChart2" width="400" height="400"></canvas>
                 </div>
+                <script>
+                    Chart.defaults.global.responsive = true;
+
+                    var ctx = $('#GenreChart2');
+                    var GenreChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
+                            datasets: [{
+                                label: '# of Books Read',
+                                data: [12, 19, 3, 5, 2, 3],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                </script>
             </div>
         </div>
     </div>
 </div>
+
 
 <script>
 
@@ -432,7 +410,7 @@
     });
 
 
-    let title, author, pages, published, startDate, finishDate;
+    let title, author, pages, published, startDate, finishDate, genres;
 
     function restoreListing(id) {
         $("#title"+id).html(title);
@@ -440,17 +418,45 @@
         $("#pages"+id).html(pages);
         $("#pubDate"+id).html(published);
         $("#startDate"+id).html(startDate);
-        if (finishDate == "") {
-            $("#finishDate"+id).html('<form action="/finish_book/" method="POST" style="float:left;"><input id="finishedBook'+id+'" type="hidden" name="finishedBook" value='+id+'><input id="finishDateField'+id+'" type="text" name="finishDate" placeholder="..."  value="" style="width:100%;"></form>');
+        if (finishDate == "" || finishDate.includes("Finished")) {
+            $("#finishDate"+id).html('<form action="/finish_book/" method="POST" style="float:left; width: 100%"><input id="finishedBook'+id+'" type="hidden" name="finishedBook" value='+id+'><button type="submit">Finished</button></form>');
         }
         else {
             $("#finishDate"+id).html('<td class="dateFinished" id="finishDate'+id+'">'+finishDate+'</td>');
         }
+        $("#genresDisplay"+id).html(genres);
+        $("#genresDisplay"+id).css("display","");
+        $("#genresSelect"+id).css("display","none");
+        $("#editReviewBtn"+id).remove();
+        $("#editOverlay").css("display","none");
 
         $("#cancelEditBtn"+id).remove();
         $("#saveEditBtn"+id).remove();
         $("#deleteBtn"+id).remove();
         $("#editBtn"+id).show();
+    }
+
+    function editReview(reviewID,review,bookTitle) {
+        $("#editDiv").html('<h3>Edit your review for '+bookTitle+'</h3><textarea id="textReview'+reviewID+'">'+review+'</textarea><button onclick="closeEdit()">Cancel</button><button onclick="saveEdit('+reviewID+')">Submit</button>');
+        $("#editOverlay").css("display","block");
+    }
+
+    function closeEdit() {
+        $("#editOverlay").css("display","none");
+    }
+
+    function saveEdit(reviewID) {
+        var review = $("#textReview"+reviewID).val();
+        console.log(review)
+        $.ajax({
+            type: "POST",
+            url: '/edit_review/',
+            data: JSON.stringify({"review":review, "id":reviewID}),
+            contentType: "application/json",
+            success: function (data) {
+                closeEdit();
+            }
+        });
     }
 
     $(".editBtn").click(function() {
@@ -473,6 +479,14 @@
             finishDate = $("#finishDateField"+id).val();
         }
         $("#finishDate"+id).html('<input type="text" id="finishDateEditField'+id+'" value="' + finishDate + '"  style="width:100%;">');
+        genres = $("#genresDisplay"+id).text();
+        $("#genresDisplay"+id).css("display","none");
+        $("#genresSelect"+id).css("display","");
+        $("#select2List"+id).select2();
+        $("#review"+id).append('  <button id="editReviewBtn'+id+'">✍️</button>');
+        $("#editReviewBtn"+id).click(function() {
+            editReview(id,$("#review"+id).children()[0].text,$("#titleEditField"+id).attr("value"));
+        });
 
         $("#editBtn"+id).hide();
         $("#bookControls"+id).append('<button id="cancelEditBtn'+id+'" class="cancelEditBtn" style="float: left;">↩️</button>');
@@ -486,6 +500,11 @@
             published = $("#publishedEditField"+id).val();
             startDate = $("#startDateEditField"+id).val();
             finishDate = $("#finishDateEditField"+id).val();
+            genres = [];
+            $("#select2List"+id).select2('data').forEach(function(g) {
+                genres.push(g.text);
+            });
+            console.log(genres);
             var thumbnail = $("#img_url"+id).text();
             var volumeID = $("#volumeID"+id).text();
 
@@ -501,7 +520,8 @@
                     'startDate':startDate,
                     'finishDate':finishDate,
                     'thumbnail':thumbnail,
-                    'volumeID':volumeID
+                    'volumeID':volumeID,
+                    'genres':genres
                 }),
                 contentType: "application/json",
                 success: function (data) {

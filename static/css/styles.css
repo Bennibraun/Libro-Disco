@@ -1,258 +1,297 @@
-
-html, div, body {
-    background-color: #25274D;
-    padding: 3px;
+html,
+div,
+body {
+  background-color: #25274d;
+  padding: 3px;
 }
 
 h1 {
-    margin: 0px;
-    padding: 0px;
-    color: #dadada;
+  margin: 0px;
+  padding: 0px;
+  color: #dadada;
 }
 
 [class*="col-"] {
-    color: #dadada;
-    /* border: 2px dotted white; */
-    border: none;
-    padding: 5px;
-    height: 60px;
+  color: #dadada;
+  /* border: 2px dotted white; */
+  border: none;
+  padding: 5px;
+  height: 60px;
 }
 
 [class*="vertcenter"] {
-    margin: 0;
-    position: absolute;
-    top: 100%;
-    transform: translateY(-50%);
+  margin: 0;
+  position: absolute;
+  top: 100%;
+  transform: translateY(-50%);
 }
 
 .table-list {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
 .table-wimg {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 td {
-    padding: 3px;
-    border: none;
-    border-collapse: collapse;
+  padding: 3px;
+  border: none;
+  border-collapse: collapse;
 }
 
-.searchCol, #searchForm {
-    display: block;
-    margin: auto;
+.searchCol,
+#searchForm {
+  display: block;
+  margin: auto;
 }
 
 #searchForm {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 #query {
-    width: 75%;
-    height: 100%;
-    padding-left: 10px;
+  width: 75%;
+  height: 100%;
+  padding-left: 10px;
 }
 
 #submitQuery {
-    height: 100%;
-    width: 20%;
+  height: 100%;
+  width: 20%;
 }
 
 .listHeaderMenu {
-    border: none;
-    float: left;
-    width: 100%;
-    display: flex;
+  border: none;
+  float: left;
+  width: 100%;
+  display: flex;
 }
 
 .listHeader {
-    border: none;
-    border-bottom: 1px solid white;
-    border-top: 1px solid white;
+  border: none;
+  border-bottom: 1px solid white;
+  border-top: 1px solid white;
 }
 
 .thumbnail {
-    max-width: 128px;
+  max-width: 128px;
 }
 
 [class*="cent"] {
-    margin: auto;
+  margin: auto;
 }
 
 [class*="searchResults"] {
-    margin: 0px;
-    width: 100%;
+  margin: 0px;
+  width: 100%;
 }
 
 [class*="resultsCol"] {
-    width: 75%;
+  width: 75%;
 }
 
 .bookRow td {
-    border: none;
+  border: none;
 }
 
 .thumbnail {
-    max-height: 204px;
-    max-width: 140px;
-    height: 196px;
-    width: 140px;
+  max-height: 204px;
+  max-width: 140px;
+  height: 196px;
+  width: 140px;
 }
 
 .bookListing {
-    padding-left: 15px;
-    padding-top: 15px;
-    padding-right: 20px;
-    vertical-align: top;
+  padding-left: 15px;
+  padding-top: 15px;
+  padding-right: 20px;
+  vertical-align: top;
 }
 
 th {
-    padding-right: 5px;
-    padding-left: 5px;
-    border-right: 1px solid white;
+  padding-right: 5px;
+  padding-left: 5px;
+  border-right: 1px solid white;
 }
 
 .spacerCol {
-    width: 1%;
-    border-right: none;
-    border-left: none;
-    cursor: default;
+  width: 1%;
+  border-right: none;
+  border-left: none;
+  cursor: default;
 }
 
 .titleCol {
-    width: 22%;
-    max-width: 30%;
-    border-right: none;
-    border-left: none;
-    cursor: pointer;
+  width: 15%;
+  max-width: 30%;
+  border-right: none;
+  border-left: none;
+  cursor: pointer;
 }
 
 .authorCol {
-    width: 16%;
-    border-right: none;
-    border-left: none;
-    cursor: pointer;
+  width: 10%;
+  border-right: none;
+  border-left: none;
+  cursor: pointer;
 }
 
 .pageCol {
-    width: 7%;
-    border-right: none;
-    border-left: none;
-    cursor: pointer;
+  width: 4%;
+  border-right: none;
+  border-left: none;
+  cursor: pointer;
 }
 
 .pubDateCol {
-    width: 7%;
-    border-right: none;
-    border-left: none;
-    cursor: pointer;
+  width: 4%;
+  border-right: none;
+  border-left: none;
+  cursor: pointer;
 }
 
 .startedCol {
-    width: 10%;
-    border-right: none;
-    border-left: none;
-    cursor: pointer;
+  width: 8%;
+  border-right: none;
+  border-left: none;
+  cursor: pointer;
 }
 
 .finishedCol {
-    width: 10%;
-    border-right: none;
-    border-left: none;
-    cursor: default;
+  width: 8%;
+  border-right: none;
+  border-left: none;
+  cursor: default;
 }
 
 .genresCol {
-    width: 18%;
-    border-right: none;
-    border-left: none;
-    cursor: default;
+  width: 18%;
+  border-right: none;
+  border-left: none;
+  cursor: default;
+}
+
+.reviewCol {
+  width: 25%;
+  border-right: none;
+  border-left: none;
+  cursor: default;
 }
 
 .controlCol {
-    width: 12%;
-    border-right: none;
-    border-left: none;
-    cursor: default;
+  width: 10%;
+  border-right: none;
+  border-left: none;
+  cursor: default;
 }
 
 .title {
-    width: 22%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  width: 15%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .author {
-    width: 16%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  width: 10%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pages {
-    width: 7%;
+  width: 4%;
 }
 
 .publicationDate {
-    width: 7%;
+  width: 4%;
 }
 
 .dateStarted {
-    width: 10%;
+  width: 8%;
 }
 
 .dateFinished {
-    width: 10%;
+  width: 8%;
 }
 
 .bookControls {
-    width: 12%;
+  width: 10%;
 }
 
 .genres {
-    width: 18%;
+  width: 18%;
+}
+
+.genresSelect {
+  color: black;
+}
+
+.review {
+  width: 25%;
 }
 
 *::-webkit-scrollbar {
-    width: 5px;
+  width: 5px;
 }
 *::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0);
+  background: rgba(0, 0, 0, 0);
 }
 *::-webkit-scrollbar-thumb {
-    background-color: white;
-    border-radius: 20px;
-    border: none;
+  background-color: white;
+  border-radius: 20px;
+  border: none;
 }
 
 input {
-    border-radius: 5px;
+  border-radius: 5px;
 }
 
 .searchMenu {
-    border-radius: 5px;
-    width: 100%;
-    height: 50px;
+  border-radius: 5px;
+  width: 100%;
+  height: 50px;
 }
 
 .addBookMenu {
-    width: 20%;
+  width: 20%;
 }
 
 .table-list tr:nth-child(even) {
-    background-color: #313463;
+  background-color: #313463;
 }
 
 tr [class*="wimg"] {
-    background-color: inherit;
+  background-color: inherit;
 }
 
 button {
-    border-radius: 5px;
+  border-radius: 5px;
+}
+
+#editOverlay {
+  position: fixed; /* Sit on top of the page content */
+  display: none; /* Hidden by default */
+  width: 100vw; /* Full width (cover the whole page) */
+  height: 100vh; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /* Add a pointer on hover */
+}
+
+#editDiv {
+  position: absolute;
+  top: 50vh;
+  left: 50vw;
+  color: white;
+  /* transform: translate(-50vw, -50vh); */
 }
