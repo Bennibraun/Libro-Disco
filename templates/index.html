@@ -69,6 +69,7 @@
                         <th id="startedCol" class="startedCol">Start {% if sort == 'date_started' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
                         <th id="finishedCol" class="finishedCol">Finish</th>
                         <th id="genresCol" class="genresCol">Genres</th>
+                        <th id="ratingCol" class="ratingCol">Rating</th>
                         <th id="reviewCol" class="reviewCol">Review</th>
                         <th id="controlCol" class="controlCol"></th>
                         <div style="display: none;">
@@ -167,6 +168,7 @@
                                     </select>
                                 </div>
                             </td>
+                            <td id="rating{{books[i].id}}" class="rating">{{ books[i].rating }}</td>
                             <td id="review{{books[i].id}}" class="review">
                                 <a>{{books[i].review}}</a>
                             </td>
@@ -410,7 +412,7 @@
     });
 
 
-    let title, author, pages, published, startDate, finishDate, genres;
+    let title, author, pages, published, startDate, finishDate, genres, rating;
 
     function restoreListing(id) {
         $("#title"+id).html(title);
@@ -427,6 +429,8 @@
         $("#genresDisplay"+id).html(genres);
         $("#genresDisplay"+id).css("display","");
         $("#genresSelect"+id).css("display","none");
+        $("#ratingInput"+id).remove();
+        $("#rating"+id).html(rating);
         $("#editReviewBtn"+id).remove();
         $("#editOverlay").css("display","none");
 
@@ -437,7 +441,7 @@
     }
 
     function editReview(reviewID,review,bookTitle) {
-        $("#editDiv").html('<h3>Edit your review for '+bookTitle+'</h3><textarea id="textReview'+reviewID+'">'+review+'</textarea><button onclick="closeEdit()">Cancel</button><button onclick="saveEdit('+reviewID+')">Submit</button>');
+        $("#editDiv").html('<h3 style="padding:10px;text-align:center;">Edit your review for '+bookTitle+'</h3><div style="width:45vw; margin:auto;"><textarea id="textReview'+reviewID+'" class="textAreaReview">'+review+'</textarea></div><div style="width:45vw; margin:auto"><button onclick="closeEdit()" style="width:50%; height: 5vh;">Cancel</button><button onclick="saveEdit('+reviewID+')" style="width:50%; height: 5vh;">Submit</button></div>');
         $("#editOverlay").css("display","block");
     }
 
@@ -447,7 +451,7 @@
 
     function saveEdit(reviewID) {
         var review = $("#textReview"+reviewID).val();
-        console.log(review)
+        $($("#review"+reviewID).children("a")[0]).text(review);
         $.ajax({
             type: "POST",
             url: '/edit_review/',
@@ -483,15 +487,17 @@
         $("#genresDisplay"+id).css("display","none");
         $("#genresSelect"+id).css("display","");
         $("#select2List"+id).select2();
-        $("#review"+id).append('  <button id="editReviewBtn'+id+'">✍️</button>');
+        rating = $("#rating"+id).text();
+        $("#rating"+id).html('<input id="ratingInput'+id+'" type="number" max=5 min=1 step=0.5 value=1 style="width:100%;">');
+        $("#review"+id).prepend('<button id="editReviewBtn'+id+'">✍️</button>');
         $("#editReviewBtn"+id).click(function() {
-            editReview(id,$("#review"+id).children()[0].text,$("#titleEditField"+id).attr("value"));
+            editReview(id,$("#review"+id).children("a")[0].text,$("#titleEditField"+id).attr("value"));
         });
 
         $("#editBtn"+id).hide();
         $("#bookControls"+id).append('<button id="cancelEditBtn'+id+'" class="cancelEditBtn" style="float: left;">↩️</button>');
         $("#bookControls"+id).append('<button id="saveEditBtn'+id+'" class="saveEditBtn" style="float: left;">💾</button>');
-        $("#bookControls"+id).append('<form id="deleteBtn'+id+'" action="/delete/'+id+'" style="float: left;"><input id="deleteBtnSubmit'+id+'" type="submit" value="❌"/></form>');
+        $("#bookControls"+id).append('<form id="deleteBtn'+id+'" action="/delete/'+id+'" style="float: left;" onsubmit="return confirm(\'Are you sure you want to delete this book?\');"><input id="deleteBtnSubmit'+id+'" type="submit" value="❌"/></form>');
         $("#cancelEditBtn"+id).click(function() { restoreListing(id); });
         $("#saveEditBtn"+id).click(function() {
             title = $("#titleEditField"+id).val();
@@ -504,7 +510,8 @@
             $("#select2List"+id).select2('data').forEach(function(g) {
                 genres.push(g.text);
             });
-            console.log(genres);
+            // console.log(genres)
+            var rating = $("#ratingInput"+id).val();
             var thumbnail = $("#img_url"+id).text();
             var volumeID = $("#volumeID"+id).text();
 
@@ -519,6 +526,7 @@
                     'published':published,
                     'startDate':startDate,
                     'finishDate':finishDate,
+                    'rating':rating,
                     'thumbnail':thumbnail,
                     'volumeID':volumeID,
                     'genres':genres

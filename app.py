@@ -60,7 +60,7 @@ readingListBooks = cur.fetchall()
 
 # Classes to use to bridge the gap between sql query and jinja2-usable object
 class logBook:
-    def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url,date_started,date_finished,genres,review):
+    def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url,date_started,date_finished,genres,rating,review):
         self.id = id
         self.title = title
         self.author = author
@@ -71,6 +71,7 @@ class logBook:
         self.date_started = date_started
         self.date_finished = date_finished
         self.genres = genres
+        self.rating = rating
         self.review = review
 
 class readingListBook:
@@ -115,7 +116,7 @@ def index():
 
     books = []
     for result in books_result:
-        book = logBook(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9],result[10])
+        book = logBook(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9],result[10],result[11])
         book.pub_date = str(book.pub_date)[:4]
         if not book.genres:
             book.genres = []
@@ -380,9 +381,15 @@ def select_volume():
         print(volumeID)
 
         book['title'] = book['title'].replace('\'','\'\'')
-        author = author.replace('\'','\'\'')
+        author = author.replace('\'', '\'\'')
+        pageCount = None
+        try:
+            pageCount = str(book["pageCount"])
+        except:
+            pageCount = '0'
 
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id,genres,review) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\',\''+genres+'\',\'Placeholder Review\');')
+
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id,genres,review) VALUES (\''+book["title"]+'\',\''+author+'\','+pageCount+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\',\''+genres+'\',\'Placeholder Review\');')
         conn.commit()
     
     return redirect(url_for('sortLog'))
@@ -452,9 +459,10 @@ def edit_listing():
         
         genresStr = ','.join(edits['genres'])
 
-        review = str(old_book[10]).replace('\'','\'\'')
 
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id,genres,review) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\',\''+genresStr+'\',\''+review+'\');')
+        review = str(old_book[11]).replace('\'', '\'\'')
+
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id,genres,rating,review) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\',\''+genresStr+'\','+edits['rating']+',\''+review+'\');')
         conn.commit()
 
 

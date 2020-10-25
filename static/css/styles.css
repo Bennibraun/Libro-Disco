@@ -176,6 +176,11 @@ th {
   cursor: default;
 }
 
+.ratingCol {
+  width: 5%;
+  border-right: none;
+}
+
 .reviewCol {
   width: 25%;
   border-right: none;
@@ -232,8 +237,15 @@ th {
   color: black;
 }
 
+.rating {
+  width: 5%;
+}
+
 .review {
   width: 25%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 *::-webkit-scrollbar {
@@ -289,9 +301,19 @@ button {
 }
 
 #editDiv {
-  position: absolute;
-  top: 50vh;
-  left: 50vw;
+  width: 50vw;
+  min-height: 50vh;
+  margin: auto;
+  margin-top: 20vh;
   color: white;
+  border-radius: 10px;
   /* transform: translate(-50vw, -50vh); */
+}
+
+.textAreaReview {
+  resize: none;
+  /* overflow: auto; */
+  width: 100%;
+  height: 30vh;
+  margin: auto;
 }

@@ -23,6 +23,7 @@ def create_tables():
             date_started DATE,
             date_finished DATE,
             genres VARCHAR(100),
+            rating FLOAT,
             review VARCHAR(500)
         )
         """,
