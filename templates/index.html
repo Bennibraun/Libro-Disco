@@ -7,7 +7,8 @@
 {% block body %}
 
 
-<div class="content">
+<div class="content" style="overflow-x:hidden;">
+
     <div class="container-fluid">
 
     <div id="editOverlay">
@@ -32,7 +33,7 @@
 
 
     <div class="row">
-        <div class="col-md-12 table-responsive" style="height: 50vh; border: none;">
+        <div class="col-md-12 table-responsive" style="height: 50vh; border: none; overflow-x: unset;">
             {% if showImages %}
             <div id="tableContent" style="height: 40vh; overflow: overlay;">
                 <table class="table-wimg">
@@ -67,18 +68,20 @@
                         <th id="pageCol" class="pageCol">Pg. {% if sort == 'page_count' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
                         <th id="pubDateCol" class="pubDateCol">Pub. {% if sort == 'pub_date' %}{% if sortAtoZ %}🔽{% else %}🔼{% endif %}{% endif %}</th>
                         <th id="startedCol" class="startedCol">Start {% if sort == 'date_started' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
-                        <th id="finishedCol" class="finishedCol">Finish</th>
+                        <th id="finishedCol" class="finishedCol">Finish {% if sort == 'date_finished' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
                         <th id="genresCol" class="genresCol">Genres</th>
-                        <th id="ratingCol" class="ratingCol">Rating</th>
+                        <th id="ratingCol" class="ratingCol">Rating {% if sort == 'rating' %}{% if sortAtoZ %}🔼{% else %}🔽{% endif %}{% endif %}</th>
                         <th id="reviewCol" class="reviewCol">Review</th>
                         <th id="controlCol" class="controlCol"></th>
                         <div style="display: none;">
                         <form action="/sort_log/" method="post" style="display: none;">
-                            <input id="sortTitle" name="sortTitle" value="Title {% if sort == 'titleUp' %}🔼{% elif sort == 'titleDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                            <input id="sortAuthor" name="sortAuthor" value="Author {% if sort == 'authorUp' %}🔼{% elif sort == 'authorDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                            <input id="sortPageCount" name="sortPageCount" value="Pg. {% if sort == 'pagesUp' %}🔼{% elif sort == 'pagesDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                            <input id="sortPubDate" name="sortPubDate" value="Pub. {% if sort == 'pubUp' %}🔼{% elif sort == 'pubDown' %}🔽{% endif %}" type="submit" style="display: none;">
-                            <input id="sortDateAdded" name="sortDateAdded" value="Start {% if sort == 'addedUp' %}🔼{% elif sort == 'addedDown' %}🔽{% endif %}" type="submit" style="display: none;">
+                            <input id="sortTitle" name="sortTitle" type="submit" style="display: none;">
+                            <input id="sortAuthor" name="sortAuthor" type="submit" style="display: none;">
+                            <input id="sortPageCount" name="sortPageCount" type="submit" style="display: none;">
+                            <input id="sortPubDate" name="sortPubDate" type="submit" style="display: none;">
+                            <input id="sortDateAdded" name="sortDateAdded" type="submit" style="display: none;">
+                            <input id="sortDateFinished" name="sortDateFinished" type="submit" style="display: none;">
+                            <input id="sortRating" name="sortRating" type="submit" style="display: none;">
                         </form>
                         </div>
 
@@ -98,11 +101,17 @@
                             $("#startedCol").click(function() {
                                 $("#sortDateAdded").click();
                             });
+                            $("#finishedCol").click(function() {
+                                $("#sortDateFinished").click();
+                            });
+                            $("#ratingCol").click(function() {
+                                $("#sortRating").click();
+                            });
                         </script>
                     </tr>
                 </table>
 
-                <div id="tableContent" style="height: 40vh; overflow: overlay;">
+                <div id="tableContent" style="height: 40vh; overflow-y: overlay; overflow-x: hidden;">
                 <table class="table-list">
                     
 
@@ -139,17 +148,20 @@
                                         <option value="0" {% if 'Astronomy' in books[i].genres %} selected {% endif %}>Astronomy</option>
                                         <option value="0" {% if 'Biography' in books[i].genres %} selected {% endif %}>Biography</option>
                                         <option value="0" {% if 'Business' in books[i].genres %} selected {% endif %}>Business</option>
+                                        <option value="0" {% if 'Biology' in books[i].genres %} selected {% endif %}>Biology</option>
                                         <option value="0" {% if 'Classic' in books[i].genres %} selected {% endif %}>Classic</option>
                                         <option value="0" {% if 'Graphic Novel' in books[i].genres %} selected {% endif %}>Graphic Novel</option>
                                         <option value="0" {% if 'Computing' in books[i].genres %} selected {% endif %}>Computing</option>
                                         <option value="0" {% if 'Engineering' in books[i].genres %} selected {% endif %}>Engineering</option>
                                         <option value="0" {% if 'Fantasy' in books[i].genres %} selected {% endif %}>Fantasy</option>
+                                        <option value="0" {% if 'Fiction' in books[i].genres %} selected {% endif %}>Fiction</option>
                                         <option value="0" {% if 'Health' in books[i].genres %} selected {% endif %}>Health</option>
                                         <option value="0" {% if 'History' in books[i].genres %} selected {% endif %}>History</option>
                                         <option value="0" {% if 'Horror' in books[i].genres %} selected {% endif %}>Horror</option>
                                         <option value="0" {% if 'Humor' in books[i].genres %} selected {% endif %}>Humor</option>
                                         <option value="0" {% if 'Kids' in books[i].genres %} selected {% endif %}>Kids</option>
                                         <option value="0" {% if 'Law' in books[i].genres %} selected {% endif %}>Law</option>
+                                        <option value="0" {% if 'Non-Fiction' in books[i].genres %} selected {% endif %}>Non-Fiction</option>
                                         <option value="0" {% if 'Math' in books[i].genres %} selected {% endif %}>Math</option>
                                         <option value="0" {% if 'Military' in books[i].genres %} selected {% endif %}>Military</option>
                                         <option value="0" {% if 'Music' in books[i].genres %} selected {% endif %}>Music</option>
@@ -280,9 +292,9 @@
                     var GenreChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
+                            labels: ['Astronomy','Biography','Business','Biology','Classic','Graphic','Computing','Engineering','Fantasy','Health','History','Horror','Humor','Kids','Law','Math','Military','Music','Mystery','Nature','Philosophy','Poetry','Politics','Psychology','Religion','Romance','Sci-Fi','Teen','Travel'],
                             datasets: [{
-                                label: ' # of books',
+                                label: 'Books',
                                 data: [12, 19, 3, 5, 2, 3],
                                 backgroundColor: [
                                     'rgba(255, 99, 132, 0.2)',
@@ -477,18 +489,18 @@
         published = $("#pubDate"+id).text();
         $("#pubDate"+id).html('<input type="text" id="publishedEditField'+id+'" value="' + published + '"  style="width:100%;">');
         startDate = $("#startDate"+id).text();
-        $("#startDate"+id).html('<input type="text" id="startDateEditField'+id+'" value="' + startDate + '"  style="width:100%;">');
+        $("#startDate"+id).html('<input type="date" id="startDateEditField'+id+'" value="' + startDate + '"  style="width:100%;">');
         finishDate = $("#finishDate"+id).text();
         if (finishDate == undefined || !finishDate.trim()) {
             finishDate = $("#finishDateField"+id).val();
         }
-        $("#finishDate"+id).html('<input type="text" id="finishDateEditField'+id+'" value="' + finishDate + '"  style="width:100%;">');
+        $("#finishDate"+id).html('<input type="date" id="finishDateEditField'+id+'" value="' + finishDate + '"  style="width:100%;">');
         genres = $("#genresDisplay"+id).text();
         $("#genresDisplay"+id).css("display","none");
         $("#genresSelect"+id).css("display","");
         $("#select2List"+id).select2();
         rating = $("#rating"+id).text();
-        $("#rating"+id).html('<input id="ratingInput'+id+'" type="number" max=5 min=1 step=0.5 value=1 style="width:100%;">');
+        $("#rating"+id).html('<input id="ratingInput'+id+'" type="number" max=5 min=1 step=0.5 value='+rating+' style="width:100%;">');
         $("#review"+id).prepend('<button id="editReviewBtn'+id+'">✍️</button>');
         $("#editReviewBtn"+id).click(function() {
             editReview(id,$("#review"+id).children("a")[0].text,$("#titleEditField"+id).attr("value"));
@@ -533,7 +545,10 @@
                 }),
                 contentType: "application/json",
                 success: function (data) {
-                    $("#deleteBtnSubmit"+id).trigger("click");
+                    // Delete redundant old listing
+                    $('body').append('<form id="tempDelete" action="/delete/'+id+'">');
+                    $("#tempDelete").submit();
+                    $("#tempDelete").remove();
                 }
             });
 

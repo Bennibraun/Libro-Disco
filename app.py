@@ -123,7 +123,7 @@ def index():
         else:
             book.genres = book.genres.split(',')
         books.append(book)
-        print(book.genres)
+        # print(book.genres)
 
 
     print('rendering index.html')
@@ -193,6 +193,20 @@ def sortLog():
             request.form['sortDateAdded']
             print('sorting by date added')
             sort = 'date_started'
+            sortAtoZ = not sortAtoZ
+        except:
+            pass
+        try:
+            request.form['sortDateFinished']
+            print('sorting by date finished')
+            sort = 'date_finished'
+            sortAtoZ = not sortAtoZ
+        except:
+            pass
+        try:
+            request.form['sortRating']
+            print('sorting by rating')
+            sort = 'rating'
             sortAtoZ = not sortAtoZ
         except:
             pass
@@ -311,7 +325,12 @@ def select_volume():
         genres = []
         try:
             book_genres = [x.lower() for x in book["categories"]]
+            print(book_genres)
             for genre in book_genres:
+                if 'fiction' in genre and 'Fiction' not in genres:
+                    genres.append('Fiction')
+                if 'nonfiction' in genre and 'Non-Fiction' not in genres:
+                    genres.append('Non-Fiction')
                 if 'philosophy' in genre and 'Philosophy' not in genres:
                     genres.append('Philosophy')
                 if 'fantasy' in genre and 'Fantasy' not in genres:
@@ -389,7 +408,7 @@ def select_volume():
             pageCount = '0'
 
 
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id,genres,review) VALUES (\''+book["title"]+'\',\''+author+'\','+pageCount+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\',\''+genres+'\',\'Placeholder Review\');')
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id,genres,rating,review) VALUES (\''+book["title"]+'\',\''+author+'\','+pageCount+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\',\''+genres+'\',0,\'Not yet reviewed\');')
         conn.commit()
     
     return redirect(url_for('sortLog'))
@@ -461,8 +480,11 @@ def edit_listing():
 
 
         review = str(old_book[11]).replace('\'', '\'\'')
+        
+        if not edits['rating']:
+            edits['rating'] = '0'
 
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id,genres,rating,review) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\',\''+genresStr+'\','+edits['rating']+',\''+review+'\');')
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id,genres,rating,review) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\',\''+genresStr+'\','+str(edits['rating'])+',\''+review+'\');')
         conn.commit()
 
 

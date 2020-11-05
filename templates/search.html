@@ -1,113 +1,144 @@
-{% extends 'base.html' %}
-
-{% block head %}
+{% extends 'base.html' %} {% block head %}
 <title>Bookmark</title>
-{% endblock %}
-
-{% block body %}
-
+{% endblock %} {% block body %}
 
 <div class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-md-6">
-                <form id="searchForm" action="/query/" method="POST">
-                    <input id="query" type="text" name="query" placeholder=" Search for a book by title, author, etc." value="{{searchTerm}}">
-                    <input id="submitQuery" type="submit" value="Search">
-                </form>
-            </div>
-            <div class="col-md-3"></div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12-cent-resultsCol">
-                <table class="searchResults-cent">
-                    <tr class="bookRow"></tr>
-                    {% for i in range(titles|length) %}
-                        <tr class="bookSearchRow">
-                            <td class="thumbnail">
-                                {% if img_url[i] == "" %}
-                                    <img src="https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg" style="max-width:100%;max-height:100%;" />
-                                {% else %}
-                                    <img src="{{img_url[i]}}" />
-                                {% endif %}
-                            </td>
-                            <td class="bookListing">
-                                <table>
-                                    <tr><td class="title-search"><h3>{{ titles[i] }}</h3></td></tr>
-                                    <tr><td class="author"><h6>{{ authors[i] }}</h6></td></tr>
-                                    {% if pages[i] != "" %}
-                                        <tr><td class="pages">{{ pages[i] }} pages</td></tr>
-                                    {% endif %}
-                                    <tr><td class="publicationDate">Published {{ publishDates[i] }}</td></tr>
-                                </table>
-                            </td>
-                            <td class="addBookMenu">
-                                <table style="width: 100%">
-                                    <tr><td class="searchMenu">
-                                        <button class="logAddBtn searchMenu" value="{{ volumeIDs[i] }}">📖 Reading</button>
-                                    </td></tr>
-                                    <tr><td class="searchMenu">
-                                        <button class="readingListAddBtn searchMenu" value="{{ volumeIDs[i] }}">📚 Want to Read</button>
-                                    </td></tr>
-                                </table>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    <script>
-                        // Send volume ID and format author name
-                        function sendBook(volumeID,flask_url) {
-                            var xmlhttp = new XMLHttpRequest();
-                            var url = "https://www.googleapis.com/books/v1/volumes/"+volumeID;
-
-                            xmlhttp.onreadystatechange = function() {
-                                if (this.readyState == 4 && this.status == 200) {
-                                    var bookJSON = JSON.parse(this.responseText);
-                                    var name = bookJSON.volumeInfo.authors[0];
-                                    console.log(name)
-                                    name = parseFullName(name);
-                                    author = name.last;
-                                    if (name.first) {
-                                        author += ", "+name.first;
-                                        if (name.middle) {
-                                            author += " "+name.middle;
-                                        }
-                                    }
-                                    $.ajax({
-                                        type: "POST",
-                                        url: flask_url,
-                                        data: JSON.stringify({
-                                            'volumeID':volumeID,
-                                            'author':author
-                                        }),
-                                        contentType: "application/json",
-                                        success: function () {
-                                            window.location = "/";
-                                        }
-                                    });
-                                }
-                            };
-                            xmlhttp.open("GET", url, true);
-                            xmlhttp.send();
-                        }
-
-
-                        $(".logAddBtn").click(function() {
-                            var volumeID = $(this).val();
-                            sendBook(volumeID,'/select_volume/');
-                        });
-
-                        $(".readingListAddBtn").click(function() {
-                            var volumeID = $(this).val();
-                            console.log(volumeID);
-                            sendBook(volumeID,'/add_reading_list/');
-                        });
-
-                    </script>
-                </table>
-            </div>
-        </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <form id="searchForm" action="/query/" method="POST">
+          <input
+            id="query"
+            type="text"
+            name="query"
+            placeholder=" Search for a book by title, author, etc."
+            value="{{searchTerm}}"
+          />
+          <input id="submitQuery" type="submit" value="Search" />
+        </form>
+      </div>
+      <div class="col-md-3"></div>
     </div>
+
+    <div class="row">
+      <div class="col-md-12-cent-resultsCol">
+        <table class="searchResults-cent">
+          <tr class="bookRow"></tr>
+          {% for i in range(titles|length) %}
+          <tr class="bookSearchRow">
+            <td class="thumbnail">
+              {% if img_url[i] == "" %}
+              <img
+                src="https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg"
+                style="max-width: 100%; max-height: 100%"
+              />
+              {% else %}
+              <img src="{{img_url[i]}}" />
+              {% endif %}
+            </td>
+            <td class="bookListing">
+              <table>
+                <tr>
+                  <td class="title-search">
+                    <h3>{{ titles[i] }}</h3 style="width: 1px">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="author">
+                    <h6 style="width: 1px">{{ authors[i] }}</h6 style="width: 1px">
+                  </td>
+                </tr>
+                {% if pages[i] != "" %}
+                <tr>
+                  <td class="pages">{{ pages[i] }} pages</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="publicationDate">
+                    Published {{ publishDates[i] }}
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td class="addBookMenu">
+              <table style="width: 100%">
+                <tr>
+                  <td class="searchMenu">
+                    <button
+                      class="logAddBtn searchMenu"
+                      value="{{ volumeIDs[i] }}"
+                    >
+                      📖 Reading
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="searchMenu">
+                    <button
+                      class="readingListAddBtn searchMenu"
+                      value="{{ volumeIDs[i] }}"
+                    >
+                      📚 Want to Read
+                    </button>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endfor %}
+          <script>
+            // Send volume ID and format author name
+            function sendBook(volumeID, flask_url) {
+              var xmlhttp = new XMLHttpRequest();
+              var url =
+                "https://www.googleapis.com/books/v1/volumes/" + volumeID;
+
+              xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                  var bookJSON = JSON.parse(this.responseText);
+                  var name = bookJSON.volumeInfo.authors[0];
+                  console.log(name);
+                  name = parseFullName(name);
+                  author = name.last;
+                  if (name.first) {
+                    author += ", " + name.first;
+                    if (name.middle) {
+                      author += " " + name.middle;
+                    }
+                  }
+                  $.ajax({
+                    type: "POST",
+                    url: flask_url,
+                    data: JSON.stringify({
+                      volumeID: volumeID,
+                      author: author,
+                    }),
+                    contentType: "application/json",
+                    success: function () {
+                      window.location = "/";
+                    },
+                  });
+                }
+              };
+              xmlhttp.open("GET", url, true);
+              xmlhttp.send();
+            }
+
+            $(".logAddBtn").click(function () {
+              var volumeID = $(this).val();
+              sendBook(volumeID, "/select_volume/");
+            });
+
+            $(".readingListAddBtn").click(function () {
+              var volumeID = $(this).val();
+              console.log(volumeID);
+              sendBook(volumeID, "/add_reading_list/");
+            });
+          </script>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
