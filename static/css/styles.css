@@ -3,6 +3,7 @@ div,
 body {
   background-color: #25274d;
   padding: 3px;
+  min-width: 100px;
 }
 
 h1 {

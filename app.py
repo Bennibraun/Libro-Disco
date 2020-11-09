@@ -98,19 +98,31 @@ def index():
     
     # Get books from db
     book_query = 'SELECT * FROM books ORDER BY ' + sort + ' '
-    if (sortAtoZ):
-        book_query += 'DESC;'
+    if sortAtoZ:
+        if sort == 'pub_date':
+            book_query += 'DESC;'
+        else:
+            book_query += 'ASC;'
     else:
-        book_query += 'ASC;'
+        if sort == 'pub_date':
+            book_query += 'ASC;'
+        else:
+            book_query += 'DESC';
     cur.execute(book_query)
     books_result = cur.fetchall()
 
     # Get reading list from db
     reading_query = 'SELECT * FROM reading_list ORDER BY ' + sortReadList + ' '
-    if (sortAtoZReading):
-        reading_query += 'DESC;'
+    if sortAtoZReading:
+        if sortReadList == 'pub_date':
+            reading_query += 'DESC;'
+        else:
+            reading_query += 'ASC;'
     else:
-        reading_query += 'ASC;'
+        if sortReadList == 'pub_date':
+            reading_query += 'ASC;'
+        else:
+            reading_query += 'DESC';
     cur.execute(reading_query)
     readingListBooks_result = cur.fetchall()
 
