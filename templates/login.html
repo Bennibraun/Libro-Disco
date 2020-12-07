@@ -1,0 +1,67 @@
+{% extends 'base.html' %} {% block head %}
+<title>Libro Disco - Book Records</title>
+{% endblock %} {% block body %}
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<div id="loginBlock" class="loginMenu">
+  <h3 style="color: white; margin: auto">Login</h3>
+  <br />
+  <form id="loginForm" action="/login/" method="POST" style="margin: auto">
+    <input id="username" name="username" type="text" placeholder="Username" />
+    <br />
+    <input
+      id="password"
+      name="password"
+      type="password"
+      placeholder="Password"
+    />
+    <br />
+    <br />
+    <input
+      id="submitBtnLogin"
+      type="submit"
+      value="Submit"
+      style="width: 100%"
+    />
+  </form>
+</div>
+<br />
+<br />
+<div id="registerBlock" class="loginMenu">
+  <h3 style="color: white; margin: auto">Register</h3>
+  <br />
+  <form
+    id="registerForm"
+    action="/register/"
+    method="POST"
+    style="margin: auto"
+  >
+    <input
+      id="regUsername"
+      name="username"
+      type="text"
+      placeholder="Username"
+    />
+    <br />
+    <input
+      id="regPassword"
+      name="password"
+      type="password"
+      placeholder="Password"
+    />
+    <br />
+    <br />
+    <input
+      id="submitBtnRegister"
+      type="submit"
+      value="Submit"
+      style="width: 100%"
+    />
+  </form>
+</div>
+
+{% endblock %}

@@ -7,19 +7,20 @@ import sys
 import os
 import redis
 import psycopg2
-# import urlparse
+from werkzeug.security import generate_password_hash, check_password_hash
+# import urllib.parse as urlparse
 
 app = Flask(__name__)
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False
 
 
 # Connect to redis db for variable consistency
-rdb = ''
-try:
-    url = urlparse.urlparse(os.environ.get('REDISCLOUD_URL'))
-    rdb = redis.Redis(host=url.hostname, port=url.port, password=url.password)
-except:
-    rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
+# rdb = ''
+# try:
+#     url = urlparse.urlparse(os.environ.get('REDISCLOUD_URL'))
+#     rdb = redis.Redis(host=url.hostname, port=url.port, password=url.password)
+# except:
+rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
 
 # Set default vars
 rdb.set('sort','title')
@@ -28,7 +29,7 @@ rdb.set('sortAtoZ','True')
 rdb.set('sortAtoZReading','True')
 rdb.set('showImages','False')
 rdb.set('showImagesReadingList','False')
-
+rdb.set('currentUser','')
 
 # Connect to postgresql db
 conn = ''
@@ -43,17 +44,13 @@ except:
 cur = conn.cursor()
 
 # Make default queries
-books_def_query = """
-SELECT * FROM books
-ORDER BY date_started DESC;
-"""
+books_def_query = 'SELECT * FROM books \nWHERE username=\''+rdb.get('currentUser').decode('utf-8')+'\'\nORDER BY date_started DESC;'
+
 cur.execute(books_def_query)
 books = cur.fetchall()
 
-readinglist_def_query = """
-SELECT * FROM reading_list
-ORDER BY title ASC;
-"""
+readinglist_def_query = 'SELECT * FROM reading_list\nWHERE username=\''+rdb.get('currentUser').decode('utf-8')+'\'\nORDER BY title ASC;'
+
 cur.execute(readinglist_def_query)
 readingListBooks = cur.fetchall()
 
@@ -75,19 +72,23 @@ class logBook:
         self.review = review
 
 class readingListBook:
-    def __init__(self,id,title,author,page_count,pub_date,volume_id,img_url):
+    def __init__(self,id,title,author,page_count,pub_date,volume_id):
         self.id = id
         self.title = title
         self.author = author
         self.page_count = page_count
         self.pub_date = pub_date
         self.volume_id = volume_id
-        self.img_url = img_url
+        # self.img_url = img_url
 
 # Begin app
 
 @app.route('/')
 def index():
+
+    if rdb.get('currentUser').decode('utf-8') == '':
+        print('no one is logged in yet.')
+        return render_template('login.html')
 
     showImages = (rdb.get('showImages').decode('utf-8') == 'True')
     showImagesReadingList = (rdb.get('showImagesReadingList').decode('utf-8') == 'True')
@@ -97,7 +98,7 @@ def index():
     sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
     
     # Get books from db
-    book_query = 'SELECT * FROM books ORDER BY ' + sort + ' '
+    book_query = 'SELECT * FROM books \nWHERE username=\''+rdb.get('currentUser').decode('utf-8')+'\'\nORDER BY ' + sort + ' '
     if sortAtoZ:
         if sort == 'pub_date':
             book_query += 'DESC;'
@@ -107,12 +108,12 @@ def index():
         if sort == 'pub_date':
             book_query += 'ASC;'
         else:
-            book_query += 'DESC';
+            book_query += 'DESC'
     cur.execute(book_query)
     books_result = cur.fetchall()
 
     # Get reading list from db
-    reading_query = 'SELECT * FROM reading_list ORDER BY ' + sortReadList + ' '
+    reading_query = 'SELECT * FROM reading_list\nWHERE username=\''+rdb.get('currentUser').decode('utf-8')+'\'\n ORDER BY ' + sortReadList + ' '
     if sortAtoZReading:
         if sortReadList == 'pub_date':
             reading_query += 'DESC;'
@@ -122,7 +123,7 @@ def index():
         if sortReadList == 'pub_date':
             reading_query += 'ASC;'
         else:
-            reading_query += 'DESC';
+            reading_query += 'DESC'
     cur.execute(reading_query)
     readingListBooks_result = cur.fetchall()
 
@@ -136,11 +137,16 @@ def index():
             book.genres = book.genres.split(',')
         books.append(book)
         # print(book.genres)
-
+    
+    booksToRead = []
+    for result in readingListBooks_result:
+        book = readingListBook(result[0],result[1],result[2],result[3],result[4],result[5])
+        book.pub_date = str(book.pub_date)[:4]
+        booksToRead.append(book)
 
     print('rendering index.html')
 
-    return render_template('index.html', books=books, booksToRead=readingListBooks, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortAtoZ=sortAtoZ, sortReadList=sortReadList, sortAtoZReading=sortAtoZReading)
+    return render_template('index.html', books=books, booksToRead=booksToRead, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortAtoZ=sortAtoZ, sortReadList=sortReadList, sortAtoZReading=sortAtoZReading)
 
 
 # @app.route('/displayMode/', methods=['POST'])
@@ -231,35 +237,36 @@ def sortLog():
 
 @app.route('/sort_reading_list/', methods=['POST','GET'])
 def sortReadingList():
+    print('sorting reading list')
     sortReadList = rdb.get('sortReadList').decode('utf-8')
     sortAtoZReading = (rdb.get('sortAtoZReading').decode('utf-8') == 'True')
 
     if request.method == 'POST':
         try:
-            request.form['sortTitle']
+            request.form['sortTitleRL']
             print('sorting by title')
             sortReadList = 'title'
             sortAtoZReading = not sortAtoZReading
         except:
             pass
         try:
-            request.form['sortAuthor']
+            request.form['sortAuthorRL']
             print('sorting by author')
             sortReadList = 'author'
             sortAtoZReading = not sortAtoZReading
         except:
             pass
         try:
-            request.form['sortPageCount']
+            request.form['sortPageCountRL']
             print('sorting by page count')
-            sortReadList = 'pages'
+            sortReadList = 'page_count'
             sortAtoZReading = not sortAtoZReading
         except:
             pass
         try:
-            request.form['sortPubDate']
+            request.form['sortPubDateRL']
             print('sorting by publication date')
-            sortReadList = 'pubDate'
+            sortReadList = 'pub_date'
             sortAtoZReading = not sortAtoZReading
         except:
             pass
@@ -420,7 +427,7 @@ def select_volume():
             pageCount = '0'
 
 
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id,genres,rating,review) VALUES (\''+book["title"]+'\',\''+author+'\','+pageCount+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\',\''+genres+'\',0,\'Not yet reviewed\');')
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,img_url,volume_id,genres,rating,review,username) VALUES (\''+book["title"]+'\',\''+author+'\','+pageCount+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(startDate)+'\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\',\''+genres+'\',0,\'Not yet reviewed\',\''+rdb.get('currentUser').decode('utf-8')+'\');')
         conn.commit()
     
     return redirect(url_for('sortLog'))
@@ -455,10 +462,10 @@ def delete(id):
         return render_template('error.html',msg='Error in delete() fn')
 
 
-@app.route('/delete_reading_list/<int:id>', methods=['GET'])
+@app.route('/delete_reading_list/<int:id>')
 def deleteReadingList(id):
     try:
-        cur.execute('DELETE FROM reading_list WHERE id='+id)
+        cur.execute('DELETE FROM reading_list WHERE id='+str(id)+';')
         conn.commit()
         return redirect('/sort_reading_list/')
     except:
@@ -496,7 +503,7 @@ def edit_listing():
         if not edits['rating']:
             edits['rating'] = '0'
 
-        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id,genres,rating,review) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\',\''+genresStr+'\','+str(edits['rating'])+',\''+review+'\');')
+        cur.execute('INSERT INTO books (title,author,page_count,pub_date,date_started,date_finished,img_url,volume_id,genres,rating,review,username) VALUES (\''+edits['title']+'\',\''+edits['author']+'\','+edits['pages']+',\''+str(edits['published'])[0:4]+'-01-01\',\''+str(edits["startDate"])+'\','+str(edits["finishDate"])+',\''+edits["thumbnail"]+'\',\''+edits['volumeID']+'\',\''+genresStr+'\','+str(edits['rating'])+',\''+review+'\',\''+rdb.get('currentUser').decode('utf-8')+'\');')
         conn.commit()
 
 
@@ -521,18 +528,55 @@ def add_reading_list():
         bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
         book = json.loads(bookResponse.text)["volumeInfo"]
         book['title'] = book['title'].replace('\'','\'\'')
-        book['author'] = book['author'].replace('\'','\'\'')
-        try:
-            img = book["imageLinks"]
-        except:
-            img = {'thumbnail':'https://images-na.ssl-images-amazon.com/images/I/618C21neZFL._SX331_BO1,204,203,200_.jpg'}
+        author = author.replace('\'','\'\'')
         
-        print('attempting to add book to reading list, likely to fail')
-        cur.execute('INSERT INTO reading_list (title,author,page_count,pub_date,img_url,volume_id) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+img["thumbnail"]+'\',\''+str(volumeID)+'\');')
+        # print('attempting to add book to reading list, likely to fail')
+        cur.execute('INSERT INTO reading_list (title,author,page_count,pub_date,volume_id,username) VALUES (\''+book["title"]+'\',\''+author+'\','+str(book["pageCount"])+',\''+str(book["publishedDate"][0:4])+'-01-01\',\''+str(volumeID)+'\',\''+rdb.get('currentUser').decode('utf-8')+'\');')
         conn.commit()
 
-    return redirect('/sort_log/')
+    return redirect('/sort_reading_list/')
 
+
+@app.route('/register/', methods=['POST'])
+def register_user():
+    username = request.form['username']
+    password = request.form['password']
+    
+    try:
+        # User(username, generate_password_hash(password)).save_to_db()
+        password = generate_password_hash(password)
+        cur.execute('INSERT INTO users (username, password) VALUES (\''+username+'\',\''+password+'\');')
+        conn.commit()
+    except:
+        return render_template('error.html',msg='failed to register user')
+    
+    return redirect('/')
+
+@app.route('/login/', methods=['POST'])
+def login():
+    username = request.form['username']
+    password = request.form['password']
+
+    cur.execute("""
+    SELECT * FROM users;
+    """)
+    users = cur.fetchall()
+
+    for user in users:
+        if user[1] == username:
+            # Check password
+            if check_password_hash(user[2],password):
+                # Successful login
+                rdb.set('currentUser',username)
+                return redirect('/')
+
+    print('login failed')
+    return redirect('/')
+
+@app.route('/logout/', methods=['POST'])
+def logout():
+    rdb.set('currentUser','')
+    return redirect('/')
 
 if __name__ == "__main__":
     app.run(debug=True)

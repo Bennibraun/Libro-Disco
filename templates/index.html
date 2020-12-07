@@ -28,12 +28,15 @@
             </form>
         </div>
         <div class="col-md-3">
+            <form action="/logout/" method="POST">
+                <input type="submit" value="Log Out" onsubmit="return confirm('Are you sure you want to log out?');">
+            </form>
         </div>
     </div>
 
 
     <div class="row">
-        <div class="col-md-12 table-responsive" style="height: 50vh; border: none; overflow-x: unset;">
+        <div class="col-md-12 table-responsive" style="height: 45vh; border: none; overflow-x: unset;">
             {% if showImages %}
             <div id="tableContent" style="height: 40vh; overflow: overlay;">
                 <table class="table-wimg">
@@ -139,7 +142,11 @@
                                 <div id="genresDisplay{{books[i].id}}" style="padding: 0px; background-color:inherit;">
                                 {% if books[i].genres is not none %}
                                     {% for genre in books[i].genres %}
-                                        <a>{{ genre }} |</a>
+                                        {% if genre == books[i].genres[-1] %}
+                                            <a>{{ genre }}</a>
+                                        {% else %}
+                                            <a>{{ genre }} |</a>
+                                        {% endif %}
                                     {% endfor %}
                                 {% endif %}
                                 </div>
@@ -199,82 +206,62 @@
 
     <div class="row">
 
-        <div class="col-md-12" style="height: 38vh; border: none; overflow: hidden;">
-        <div class="listHeaderMenu">
-            <form action="/reading_list/" method="post">
-                Sort by: 
-                <input id="sortTitle2" name="sortTitle" value="Title {% if sortReadList == 'titleUp' %}🔼{% elif sortReadList == 'titleDown' %}🔽{% endif %}" type="submit">
-                <input id="sortAuthor2" name="sortAuthor" value="Author {% if sortReadList == 'authorUp' %}🔼{% elif sortReadList == 'authorDown' %}🔽{% endif %}" type="submit">
-                <input id="sortPageCount2" name="sortPageCount" value="Page Count {% if sortReadList == 'pagesUp' %}🔼{% elif sortReadList == 'pagesDown' %}🔽{% endif %}" type="submit">
-                <input id="sortPubDate2" name="sortPubDate" value="Publication Date {% if sortReadList == 'pubUp' %}🔼{% elif sortReadList == 'pubDown' %}🔽{% endif %}" type="submit">
-            </form>
+        <div class="col-md-6 table-responsive" style="height: 38vh; border: none; overflow-x: unset;">
+        <h3>Want-to-Read</h3>
+        <table class="table-list">
+            <tr class="listHeader">
+                <th id="titleColRL" class="titleColRL">&nbspTitle {% if sortReadList == 'title' %}{% if sortAtoZReading %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                <th id="authorColRL" class="authorColRL">Author {% if sortReadList == 'author' %}{% if sortAtoZReading %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                <th id="pagesColRL" class="pagesColRL">Pg. {% if sortReadList == 'page_count' %}{% if sortAtoZReading %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                <th id="pubDateColRL" class="pubDateColRL">Pub. {% if sortReadList == 'pub_date' %}{% if sortAtoZReading %}🔼{% else %}🔽{% endif %}{% endif %}</th>
+                <th id="controlColRL" class="controlColRL"></th>
+                <div style="display:none">
+                    <form action="/sort_reading_list/" method="post", style="display:none">
+                        <input id="sortTitleRL" name="sortTitleRL" type="submit" style="display:none">
+                        <input id="sortAuthorRL" name="sortAuthorRL" type="submit" style="display:none">
+                        <input id="sortPageCountRL" name="sortPageCountRL" type="submit" style="display:none">
+                        <input id="sortPubDateRL" name="sortPubDateRL" type="submit" style="display:none">
+                    </form>
+                </div>
+                <script>
+                    $("#titleColRL").click(function() {
+                        $("#sortTitleRL").click();
+                    });
+                    $("#authorColRL").click(function() {
+                        $("#sortAuthorRL").click();
+                    });
+                    $("#pagesColRL").click(function() {
+                        $("#sortPageCountRL").click();
+                    });
+                    $("#pubDateColRL").click(function() {
+                        $("#sortPubDateRL").click();
+                    });
+                </script>
+            </tr>
+        </table>
     
-            <form action="/displayModeReadingList/" method="post" style="padding-left: 20px;">
-                <input name="switchDisplayMode" value="Toggle Display Mode" type="submit">
-            </form>
-        </div>
-        {% if showImagesReadingList %}
-        <div id="tableContent" style="height: 30vh; overflow: overlay;">
-            <table class="table-wimg">
-                <tr class="bookRow"></tr>
-                {% for i in range(booksToRead|length) %}
-                    <tr class="bookRow">
-                        <td class="thumbnail">
-                            <img id="thumbnail{{booksToRead[i].id}}" class="thumbnail" src="{{ booksToRead[i].img_url }}" />
-                        </td>
-                        <td class="bookListing">
-                            <table>
-                                <tr><td class="title-wimg"><h3>{{ booksToRead[i].title }}</h3></td></tr>
-                                <tr><td class="author-wimg"><h6>{{ booksToRead[i].author }}</h6></td></tr>
-                                {% if booksToRead[i].page_count != "" %}
-                                    <tr><td class="pages-wimg">{{ booksToRead[i].page_count }} pages</td></tr>
-                                {% endif %}
-                                <tr><td class="publicationDate-wimg">Published {{ booksToRead[i].pub_date }}</td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% else %}
-            <table class="table-list">
-                <tr class="listHeader">
-                    <th class="titleCol" style="width: 49%;">Title</th>
-                    <th class="spacerCol"></th>
-                    <th class="authorCol" style="width: 20%;">Author</th>
-                    <th class="pageCol" style="width: 8%;">Pg.</th>
-                    <th class="pubDateCol" style="width: 8%;">Pub.</th>
-                    <th class="bookControlsCol" style="width: 20%"></th>
-            </table>
-    
-            <div id="tableContent" style="height: 40vh; overflow: overlay;">
+        <div id="tableContent" style="height: 40vh; overflow: overlay;">
             <table class="table-list">
                 
-    
+
                 {% for i in range(booksToRead|length) %}
                     <tr class="bookRow">
-                        <td class="title" id="title{{booksToRead[i].id}}" style="width: 49%;">{{ booksToRead[i].title }}</td>
-                        <td class="spacerCol"></td>
-                        <td class="author" id="author{{booksToRead[i].id}}" style="width: 20%;">{{ booksToRead[i].author }}</td>
+                        <td class="titleRL" id="title{{booksToRead[i].id}}" >{{ booksToRead[i].title }}</td>
+                        <td class="authorRL" id="author{{booksToRead[i].id}}" >{{ booksToRead[i].author }}</td>
                         {% if booksToRead[i].page_count != "" %}
-                            <td class="pages" id="pages{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].page_count }}</td>
+                            <td class="pagesRL" id="pages{{booksToRead[i].id}}" >{{ booksToRead[i].page_count }}</td>
                         {% endif %}
-                        <td class="publicationDate" id="pubDate{{booksToRead[i].id}}" style="width: 8%;">{{ booksToRead[i].pub_date }}</td>
-                        <td id="bookControls{{booksToRead[i].id}}" class="bookControls" style="width: 20%;">
-                            <button id="readBtn{{booksToRead[i].id}}" class="readBtn" style="float: left;">📖 Read Book</button>
+                        <td class="pubDateRL" id="pubDate{{booksToRead[i].id}}" >{{ booksToRead[i].pub_date }}</td>
+                        <td id="bookControls{{booksToRead[i].id}}" class="bookControlsRL">
+                            <button id="readBtn{{booksToRead[i].id}}" class="readBtn" style="float: left;">📖 Begin Reading</button>
                         </td>
                         <td id="volumeID{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].volume_id}}</td>
-                        <td id="img_url{{booksToRead[i].id}}" style="display:none;">{{booksToRead[i].img_url}}</td>
                     </tr>
                 {% endfor %}
             </table>
-            </div>
-        {% endif %}
+        </div>
         </div>
     </div>
-    </div>
-
-
 
         <div class="row">
             <div class="col-md-7">
@@ -407,6 +394,7 @@
                         $.ajax({
                             url: '/delete_reading_list/'+id
                         });
+                        location.reload();
                     }
                 });
             }

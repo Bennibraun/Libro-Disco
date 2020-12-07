@@ -40,11 +40,18 @@ def create_tables():
     )
 
 
-    for command in commands:
-        cur.execute(command)
-        conn.commit()
-
+    # for command in commands:
+    #     cur.execute(command)
+    #     conn.commit()
+    cur.execute("""
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL
+    );
+    """)
     conn.commit()
+    print('table created')
 
 def clear_tables():
     command = 'DELETE FROM books;'
@@ -55,4 +62,11 @@ def clear_tables():
 
 # clear_tables()
 
-create_tables()
+# create_tables()
+
+command = """
+DELETE FROM users WHERE username='john';
+"""
+
+cur.execute(command)
+conn.commit()
