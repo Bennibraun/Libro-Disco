@@ -2,6 +2,8 @@
 
 {% block head %}
 <title>Libro Disco - Book Records</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='dist/jquery.timeline.min.css') }}">
+<script src="{{ url_for('static', filename='dist/jquery.timeline.min.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -240,7 +242,7 @@
             </tr>
         </table>
     
-        <div id="tableContent" style="height: 40vh; overflow: overlay;">
+        <div id="tableContent" style="height: 80%; overflow: overlay;">
             <table class="table-list">
                 
 
@@ -264,7 +266,132 @@
     </div>
 
         <div class="row">
-            <div class="col-md-7">
+            <div class="col-md-7" style="height:fit-content;">
+                <h3>Stats for Nerds</h3>
+
+                <div id="timeline">
+                    <ul class="timeline-events">
+                        <li data-timeline-node="{ start:'2018-03-01', end:'2020-12-01',content:'Event Here' }">Event Label</li>
+                        <li data-timeline-node="{ start:'2019-03-01', end:'2020-06-01',content:'Test' }">Test2</li>
+                    </ul>
+                </div>
+
+                <script>
+                    $("#timeline").Timeline({
+                        // "bar" or "point"
+                        type            : "bar",
+                        // "years" or "months" or "days"
+                        scale           : "days", 
+                        // start <a href="https://www.jqueryscript.net/time-clock/">date</a> time
+                        startDatetime   : "currently",
+                        // end date time
+                        endDatetime     : "auto",
+                        // displays headline
+                        headline        : {
+                            display     : true,
+                            title       : "",
+                            range       : true,
+                            locale      : "en-US",
+                            format      : { hour12: false }
+                        }, 
+                        // displays sidebar
+                        sidebar         : {
+                            sticky      : false,
+                            overlay     : false,
+                            list        : [], //  an array of items
+                        },
+                        // displays ruler
+                        ruler           : {
+                            top         : {
+                            lines      : [],
+                            height     : 30,
+                            fontSize   : 14,
+                            color      : "#777777",
+                            background : "#FFFFFF",
+                            locale     : "en-US",
+                            format     : { hour12: false }
+                            },
+                        },
+                        // displays footer
+                        footer          : {
+                            display     : true,
+                            content     : "",
+                            range       : false,
+                            locale      : "en-US",
+                            format      : { hour12: false }
+                        },
+                        // displays event meta
+                        eventMeta       : {
+                            display     : false,
+                            scale       : "day",
+                            locale      : "en-US",
+                            format      : { hour12: false },
+                            content     : ""
+                        },
+                        // event data
+                        eventData       : [],
+                        // enables/disables effects
+                        effects         : {
+                            presentTime : true,
+                            hoverEvent  : true,
+                            stripedGridRow : true,
+                            horizontalGridStyle : 'dotted',
+                            verticalGridStyle : 'solid',
+                        },
+                        colorScheme     : { // Added new option since v2.0.0
+                            event         : {
+                            text        : "#313463",
+                            border      : "#313463",
+                            background  : "#25274d"
+                            },
+                            hookEventColors : () => null, // Added instead of merging setColorEvent of PR#37 since v2.0.0
+                        },
+                        // default view range
+                        range           : 3, 
+                        // numer of timeline rows
+                        rows            : 5, 
+                        // height of row
+                        rowHeight       : 40, 
+                        // width of timeline
+                        width           : "auto",
+                        // height of timeline
+                        height          : "auto",
+                        // min size of <a href="https://www.jqueryscript.net/tags.php?/grid/">grid</a>
+                        minGridSize     : 30, 
+                        // margin size
+                        marginHeight    : 2,
+                        // "left", "center", "right", "current", "latest" or specific event id
+                        rangeAlign      : "latest",
+                        // "default", false and selector
+                        loader          : "default",
+                        // loading message
+                        loadingMessage  : "",
+                        // hides scrollbar
+                        hideScrollbar   : false,
+                        // "session" or "local"
+                        storage         : "session",
+                        // loads cached events during reloading
+                        reloadCacheKeep : false,
+                        // zooms the scale of the timeline by double clicking
+                        zoom            : false,
+                        // wraps new scale in the timeline container when zooming
+                        wrapScale       : true,
+                        // 0: Sunday, 1: Monday, ... 6: Saturday
+                        firstDayOfWeek  : 0, 
+                        // "canvas" or "d3.js"
+                        engine          : "canvas",
+                        // avoid validation of the maximum of the scale grids
+                        disableLimitter : false,
+                        // debug mode
+                        debug           : false
+                    });
+
+                    $("#timeline").Timeline('show');
+
+                </script>
+
+
+
                 <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
                     <canvas id="GenreChart" width="400" height="400"></canvas>
                 </div>
@@ -276,7 +403,7 @@
 
                     var genresList = [];
 
-                    var GenreChart = new Chart(ctx, {
+                    var GenreFreq = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: ['Astronomy','Biography','Business','Biology','Classic','Graphic','Computing','Engineering','Fantasy','Health','History','Horror','Humor','Kids','Law','Math','Military','Music','Mystery','Nature','Philosophy','Poetry','Politics','Psychology','Religion','Romance','Sci-Fi','Teen','Travel'],

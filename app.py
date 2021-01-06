@@ -8,6 +8,7 @@ import os
 import redis
 import psycopg2
 from werkzeug.security import generate_password_hash, check_password_hash
+from collections import Counter 
 # import urllib.parse as urlparse
 
 app = Flask(__name__)
@@ -143,10 +144,12 @@ def index():
         book = readingListBook(result[0],result[1],result[2],result[3],result[4],result[5])
         book.pub_date = str(book.pub_date)[:4]
         booksToRead.append(book)
+    
+    stats = fetch_stats()
 
     print('rendering index.html')
 
-    return render_template('index.html', books=books, booksToRead=booksToRead, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortAtoZ=sortAtoZ, sortReadList=sortReadList, sortAtoZReading=sortAtoZReading)
+    return render_template('index.html', books=books, booksToRead=booksToRead, showImages=showImages, showImagesReadingList=showImagesReadingList, sort=sort, sortAtoZ=sortAtoZ, sortReadList=sortReadList, sortAtoZReading=sortAtoZReading, stats=stats)
 
 
 # @app.route('/displayMode/', methods=['POST'])
@@ -578,5 +581,27 @@ def logout():
     rdb.set('currentUser','')
     return redirect('/')
 
+def fetch_stats():
+    stats = []
+
+    # Frequency of Genres
+    cur.execute("""
+    SELECT genres FROM books;
+    """ )
+    genres = cur.fetchall()
+    genre_instances = []
+    for g in genres:
+        genre_instances.extend(g[0].split(','))
+    genre_counts = Counter(genre_instances)
+    # print(genre_counts)
+    stats.append({'genre_freq_labels': genre_counts.keys()})
+    stats.append({'genre_freq_values': genre_counts.values()})
+
+    # Timeline
+
+
+    return []
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False,threaded=True)
