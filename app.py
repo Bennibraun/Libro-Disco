@@ -24,7 +24,7 @@ app.config['DEBUG'] = False
 rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
 
 # Set default vars
-rdb.set('sort','title')
+rdb.set('sort','date_started')
 rdb.set('sortReadList','title')
 rdb.set('sortAtoZ','True')
 rdb.set('sortAtoZReading','True')
