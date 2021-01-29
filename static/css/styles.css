@@ -383,3 +383,12 @@ button {
   flex-direction: column;
   justify-content: center;
 }
+
+.jqtl-container {
+  background-color: #25274d !important;
+  border: none !important;
+}
+
+.jqtl-container::-webkit-scrollbar {
+  height: 8px;
+}

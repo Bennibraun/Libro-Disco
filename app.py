@@ -24,9 +24,9 @@ app.config['DEBUG'] = False
 rdb = redis.Redis(host='redis-18733.c15.us-east-1-4.ec2.cloud.redislabs.com', port=18733, password='ZGeq34DqphcnS0lkuBOLLKHPLlbEevEc')
 
 # Set default vars
-rdb.set('sort','date_started')
+rdb.set('sort','date_finished')
 rdb.set('sortReadList','title')
-rdb.set('sortAtoZ','True')
+rdb.set('sortAtoZ', 'False')
 rdb.set('sortAtoZReading','True')
 rdb.set('showImages','False')
 rdb.set('showImagesReadingList','False')
@@ -289,7 +289,7 @@ def search():
         response = requests.get("https://www.googleapis.com/books/v1/volumes?q=" + searchTerm + "&orderBy=relevance&maxResults=40")
         results = json.loads(response.text)
         if results["totalItems"] == 0:
-            return render_template('error.html', msg='Search turned up empty, sorry.')
+            return render_template('error.html', msg='Search turned up empty (evidently you suck at googling).')
         else:
             img_url = []
             titles = []
@@ -332,12 +332,16 @@ def search():
 @app.route('/select_volume/',methods=['POST'])
 def select_volume():
     if request.method == 'POST':
-        data = request.get_json()
-        volumeID = data['volumeID']
-        author = data['author']
-        bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
-        book = json.loads(bookResponse.text)["volumeInfo"]
-        startDate = str(date.today())
+        try:
+            data = request.get_json()
+            volumeID = data['volumeID']
+            author = data['author']
+            bookResponse = requests.get("https://www.googleapis.com/books/v1/volumes/"+volumeID)
+            book = json.loads(bookResponse.text)["volumeInfo"]
+            startDate = str(date.today())
+        except:
+            print('failed to retrieve book info')
+            return
         # Get cover image
         try:
             img = book["imageLinks"]

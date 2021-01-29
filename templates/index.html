@@ -276,16 +276,18 @@
                     </ul>
                 </div>
 
+                <!-- <div class="timeline-event-view"></div> -->
+
                 <script>
                     $("#timeline").Timeline({
                         // "bar" or "point"
                         type            : "bar",
                         // "years" or "months" or "days"
-                        scale           : "days", 
+                        scale           : "months", 
                         // start <a href="https://www.jqueryscript.net/time-clock/">date</a> time
-                        startDatetime   : "currently",
+                        startDatetime   : "2018-01-01",
                         // end date time
-                        endDatetime     : "auto",
+                        endDatetime     : "2021-03-01",
                         // displays headline
                         headline        : {
                             display     : true,
@@ -306,7 +308,7 @@
                             lines      : [],
                             height     : 30,
                             fontSize   : 14,
-                            color      : "#777777",
+                            color      : "#FFFFFF",
                             background : "#FFFFFF",
                             locale     : "en-US",
                             format     : { hour12: false }
@@ -340,7 +342,7 @@
                         },
                         colorScheme     : { // Added new option since v2.0.0
                             event         : {
-                            text        : "#313463",
+                            text        : "#FFFFFF",
                             border      : "#313463",
                             background  : "#25274d"
                             },
@@ -373,7 +375,7 @@
                         // loads cached events during reloading
                         reloadCacheKeep : false,
                         // zooms the scale of the timeline by double clicking
-                        zoom            : false,
+                        zoom            : true,
                         // wraps new scale in the timeline container when zooming
                         wrapScale       : true,
                         // 0: Sunday, 1: Monday, ... 6: Saturday
@@ -451,7 +453,7 @@
                     var GenreChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: ['SCiFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
+                            labels: ['SciFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
                             datasets: [{
                                 label: '# of Books Read',
                                 data: [12, 19, 3, 5, 2, 3],
