@@ -287,6 +287,8 @@ def search():
         searchTerm = request.form['query']
         searchTerm = searchTerm.replace(' ','+')
         response = requests.get("https://www.googleapis.com/books/v1/volumes?q=" + searchTerm + "&orderBy=relevance&maxResults=40")
+        print("https://www.googleapis.com/books/v1/volumes?q=" + searchTerm + "&orderBy=relevance&maxResults=40")
+        print(response)
         results = json.loads(response.text)
         if results["totalItems"] == 0:
             return render_template('error.html', msg='Search turned up empty (evidently you suck at googling).')
