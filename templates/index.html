@@ -2,8 +2,6 @@
 
 {% block head %}
 <title>Libro Disco - Book Records</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/vis-timeline/dist/vis-timeline-graph2d.min.css') }}">
-<script src="{{ url_for('static', filename='node_modules/vis-timeline/dist/vis-timeline-graph2d.min.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -266,7 +264,7 @@
     </div>
 
         <div class="row">
-            <div class="col-md-7" style="height:fit-content;">
+            <div class="col-md-12" style="height:fit-content;">
 
                 <style>
 
@@ -368,103 +366,257 @@
                         reset_timeline_view();
                     };
 
+                    function range(start, end) {
+                        return Array(end - start + 1).fill().map((_, idx) => start + idx);
+                    }
+
 
                 </script>
 
+            </div>
+        </div>
 
-                <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
-                    <canvas id="GenreChart" width="400" height="400"></canvas>
+        <div class="row">
+
+            <div class="col-md-12" style="height: 60vh;">
+
+                <h3>Graphs & Stats</h3>
+            
+                <div class="chart-container" style="float: left; height:20vh; width:48vw; padding: 10px;">
+                    <canvas id="GenreChart"></canvas>
                 </div>
                 <script>
                     Chart.defaults.global.responsive = true;
+                    Chart.defaults.global.color = "#dadada";
 
                     
                     var ctx = $('#GenreChart');
+                    
+                    var genresList = ['Astronomy','Biography','Business','Biology','Classic','Graphic Novel','Computing','Engineering','Fantasy','Health','History','Horror','Humor','Kids','Law','Math','Military','Music','Mystery','Nature','Philosophy','Poetry','Politics','Psychology','Religion','Romance','Sci-Fi','Science','Teen','Travel'];
+                    var genreCounts = new Array(genresList.length).fill(0);
 
-                    var genresList = [];
+                    // console.log(genresList.length);
+                    // console.log(genreCounts.length);
 
-                    var GenreFreq = new Chart(ctx, {
+                    {% for b in range(books|length) %}
+                        {% for g in range(books[b].genres|length) %}
+                            var genreIndex = genresList.indexOf("{{books[b].genres[g]}}");
+                            if (genreIndex != -1) {
+                                genreCounts[genreIndex] += 1;
+                            }
+                        {% endfor %}
+                    {% endfor %}
+
+                    var genresData = {};
+                    for (var i=0; i<genresList.length; i++) {
+                        genresData[genresList[i]] = genreCounts[i];
+                    }
+
+                    const sortableGenres = Object.fromEntries(Object.entries(genresData).sort(([,a],[,b]) => b-a));
+                    genresData = sortableGenres;
+
+                    genresList = Object.keys(genresData);
+                    genreCounts = Object.values(genresData);
+
+                    var GenreFreqChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: ['Astronomy','Biography','Business','Biology','Classic','Graphic','Computing','Engineering','Fantasy','Health','History','Horror','Humor','Kids','Law','Math','Military','Music','Mystery','Nature','Philosophy','Poetry','Politics','Psychology','Religion','Romance','Sci-Fi','Teen','Travel'],
+                            labels: genresList,
                             datasets: [{
-                                label: 'Books',
-                                data: [12, 19, 3, 5, 2, 3],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                    'rgba(75, 192, 192, 0.2)',
-                                    'rgba(153, 102, 255, 0.2)',
-                                    'rgba(255, 159, 64, 0.2)'
-                                ],
-                                borderColor: [
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)',
-                                    'rgba(255, 159, 64, 1)'
-                                ],
+                                label: ' # of Books',
+                                data: genreCounts,
+                                borderColor: "#dadada",
+                                backgroundColor: "rgba(0,0,0,0)",
                                 borderWidth: 1
                             }]
                         },
                         options: {
+                            legend: {
+                                display: false
+                            },
                             scales: {
-                                yAxes: [{
+                                xAxes: [{
+                                    display: true,
+                                    gridLines: { color: "rgba(0,0,0,0)", zeroLineColor: "rgba(0,0,0,0)" },
+                                    scaleLabel: {
+                                        display: false,
+                                        labelString: 'x axis label',
+                                        fontColor:'#dadada',
+                                        fontSize:10
+                                    },
                                     ticks: {
-                                        beginAtZero: true
+                                    fontColor: "#dadada",
+                                    fontSize: 12
                                     }
-                                }]
+                                }],
+                                yAxes: [{
+                                    display: true,
+                                    gridLines: { color: "rgba(0,0,0,0)", zeroLineColor: "rgba(0,0,0,0)" },
+                                    scaleLabel: {
+                                        display: false,
+                                        labelString: 'y axis label',
+                                        fontColor: '#dadada',
+                                        fontSize:10
+                                    },
+                                    ticks: {
+                                        fontColor: "#dadada",
+                                        fontSize: 12
+                                    }
+                                }],
+                                title: {
+                                    color: "#dadada"
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: "Genre Frequency",
+                                fontColor: "#dadada",
+                                fontSize: 20,
+                                fontStyle: 'normal',
+                                fontFamily: 'Segoe UI'
                             }
                         }
                     });
                 </script>
 
-                <div class="chart-container" style="float: left; height:40%; width:40%; padding: 10px;">
-                    <canvas id="GenreChart2" width="400" height="400"></canvas>
+                <div class="chart-container" style="float: left; height:20vh; width:48vw; padding: 10px;">
+                    <canvas id="PageCountChart"></canvas>
                 </div>
                 <script>
-                    Chart.defaults.global.responsive = true;
 
-                    var ctx = $('#GenreChart2');
-                    var GenreChart = new Chart(ctx, {
-                        type: 'bar',
+                    var pageCounts = [];
+                    var timeToRead = [];
+                    var bookTitles = [];
+
+                    {% for b in range(books|length) %}
+                        pageCounts.push(parseInt("{{books[b].page_count}}"));
+                        endDate = "{{books[b].date_finished}}";
+                        if (endDate == "None") {
+                            endDate = Date.now();
+                        } else {
+                            endDate = Date.parse(endDate);
+                        }
+                        timeToRead.push(Math.max(1,parseInt((endDate - Date.parse("{{books[b].date_started}}"))/86400000)));
+                        bookTitles.push("{{books[b].title}}");
+                    {% endfor %}
+
+                    console.log(timeToRead);
+                    var readTimeData = [];
+                    for (var i=0; i<bookTitles.length; i++) {
+                        readTimeData.push({x:timeToRead[i],y:pageCounts[i]});
+                    }
+
+                    //TODO: Make scatterplot labels show book titles
+                    var ctx = document.getElementById('PageCountChart');
+                    var GenreFreqChart = new Chart(ctx, {
+                        type: 'scatter',
                         data: {
-                            labels: ['SciFi', 'Romance', 'Classic', 'Science', 'Fantasy', 'Fiction'],
+                            labels: bookTitles,
                             datasets: [{
-                                label: '# of Books Read',
-                                data: [12, 19, 3, 5, 2, 3],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                    'rgba(75, 192, 192, 0.2)',
-                                    'rgba(153, 102, 255, 0.2)',
-                                    'rgba(255, 159, 64, 0.2)'
-                                ],
-                                borderColor: [
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)',
-                                    'rgba(255, 159, 64, 1)'
-                                ],
-                                borderWidth: 1
+                                label: 'Page Count vs Reading Time',
+                                data: readTimeData,
+                                borderColor: "#dadada",
+                                backgroundColor: "rgba(0,0,0,0)",
+                                borderWidth: 1,
+                                trendlineLinear: {
+                                    style: "#dadada",
+                                    lineStyle: "dotted",
+                                    width: 2
+                                }
                             }]
                         },
                         options: {
+                            legend: {
+                                display: false
+                            },
                             scales: {
-                                yAxes: [{
+                                xAxes: [{
+                                    display: true,
+                                    type: 'logarithmic',
+                                    gridLines: { color: "rgba(0,0,0,0)", zeroLineColor: "rgba(0,0,0,0)" },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Days Spent Reading',
+                                        fontColor:'#dadada',
+                                        fontSize:18
+                                    },
                                     ticks: {
-                                        beginAtZero: true
+                                        min: 1,
+                                        max: 500,
+                                        callback: function (value, index, values) {
+                                            return Number(value.toString());
+                                        },
+                                        fontColor: "#dadada",
+                                        fontSize: 15
+                                    },
+                                    afterBuildTicks: function (chartObj) {
+                                        chartObj.ticks = [];
+                                        chartObj.ticks.push(1);
+                                        chartObj.ticks.push(2);
+                                        chartObj.ticks.push(3);
+                                        chartObj.ticks.push(4);
+                                        chartObj.ticks.push(5);
+                                        chartObj.ticks.push(8);
+                                        chartObj.ticks.push(10);
+                                        chartObj.ticks.push(15);
+                                        chartObj.ticks.push(25);
+                                        chartObj.ticks.push(50);
+                                        chartObj.ticks.push(100);
+                                        chartObj.ticks.push(200);
+                                        chartObj.ticks.push(400);
                                     }
-                                }]
+                                }],
+                                yAxes: [{
+                                    display: true,
+                                    type: 'logarithmic',
+                                    gridLines: { color: "rgba(0,0,0,0)", zeroLineColor: "rgba(0,0,0,0)" },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Page Count',
+                                        fontColor: '#dadada',
+                                        fontSize:18
+                                    },
+                                    ticks: {
+                                        min: 80,
+                                        max: 1250,
+                                        callback: function (value, index, values) {
+                                            return Number(value.toString());
+                                        },
+                                        fontColor: "#dadada",
+                                        fontSize: 15,
+                                        padding: 20
+                                    },
+                                    afterBuildTicks: function (chartObj) {
+                                        chartObj.ticks = [];
+                                        chartObj.ticks.push(80);
+                                        chartObj.ticks.push(100);
+                                        chartObj.ticks.push(125);
+                                        chartObj.ticks.push(150);
+                                        chartObj.ticks.push(200);
+                                        chartObj.ticks.push(300);
+                                        chartObj.ticks.push(450);
+                                        chartObj.ticks.push(600);
+                                        chartObj.ticks.push(800);
+                                        chartObj.ticks.push(1000);
+                                        chartObj.ticks.push(1250);
+                                    }
+                                }],
+                                title: {
+                                    color: "#dadada"
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: "Book Length vs Time",
+                                fontColor: "#dadada",
+                                fontSize: 20,
+                                fontStyle: 'normal',
+                                fontFamily: 'Segoe UI'
                             }
                         }
                     });
                 </script>
+            </div>
             </div>
         </div>
     </div>

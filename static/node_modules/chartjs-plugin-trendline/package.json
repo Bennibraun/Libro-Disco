@@ -1,0 +1,29 @@
+{
+  "name": "chartjs-plugin-trendline",
+  "version": "0.2.2",
+  "description": "Trendline for Chart.js",
+  "main": "src/chartjs-plugin-trendline.js",
+  "scripts": {
+    "build": "gulp",
+    "bump-minor": "gulp bump-minor",
+    "bump-patch": "gulp bump-patch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Makanz/chartjs-plugin-trendline.git"
+  },
+  "author": "Marcus Alsterfjord",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Makanz/chartjs-plugin-trendline/issues"
+  },
+  "homepage": "https://github.com/Makanz/chartjs-plugin-trendline#readme",
+  "devDependencies": {
+    "del": "^6.0.0",
+    "gulp": "^4.0.2",
+    "gulp-bump": "^3.2.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-uglify": "^3.0.2",
+    "pump": "^3.0.0"
+  }
+}

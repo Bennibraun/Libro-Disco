@@ -83,7 +83,6 @@ class readingListBook:
         # self.img_url = img_url
 
 # Begin app
-
 @app.route('/')
 def index():
 
