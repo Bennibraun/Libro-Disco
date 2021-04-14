@@ -9,7 +9,7 @@
 
 <div class="content" style="overflow:hidden;">
 
-    <div class="container-fluid">
+<div class="container-fluid">
 
     <div id="editOverlay">
         <div id="editDiv">
@@ -303,7 +303,6 @@
 
                     var events = [];
 
-                    // console.log("{{ books[0].title }}");
                     {% for i in range(books|length) %}
 
                         var beginDate = Date.parse("{{books[i].date_started}}");
@@ -320,13 +319,6 @@
                             endDate += 100000000;
                         }
 
-                        // console.log({
-                        //     id: parseInt("{{i}}"),
-                        //     group: 0,
-                        //     content: "{{books[i].title}}",
-                        //     start: Date.parse("{{books[i].date_started}}"),
-                        //     end: endDate
-                        // });
 
                         events.push({
                             id: parseInt("{{i}}"),
@@ -377,14 +369,15 @@
         </div>
 
         <div class="row">
-
-            <div class="col-md-12" style="height: 60vh;">
-
+                
+            <div class="col-md-6" style="height: 60vh;">
                 <h3>Graphs & Stats</h3>
-            
-                <div class="chart-container" style="float: left; height:20vh; width:48vw; padding: 10px;">
+
+                
+                <div class="chart-container" style="float: left; height:20vh; width:100%; padding: 10px;">
                     <canvas id="GenreChart"></canvas>
                 </div>
+
                 <script>
                     Chart.defaults.global.responsive = true;
                     Chart.defaults.global.color = "#dadada";
@@ -479,7 +472,10 @@
                     });
                 </script>
 
-                <div class="chart-container" style="float: left; height:20vh; width:48vw; padding: 10px;">
+            </div>
+            <div class="col-md-6" style="height: 60vh;">
+
+                <div class="chart-container" style="float: left; height:20vh; width:100%; padding-top:41px;">
                     <canvas id="PageCountChart"></canvas>
                 </div>
                 <script>
@@ -500,34 +496,61 @@
                         bookTitles.push("{{books[b].title}}");
                     {% endfor %}
 
-                    console.log(timeToRead);
                     var readTimeData = [];
                     for (var i=0; i<bookTitles.length; i++) {
                         readTimeData.push({x:timeToRead[i],y:pageCounts[i]});
                     }
 
-                    //TODO: Make scatterplot labels show book titles
+                    var pointColors = [];
+                    var ratingColors = ["#ff0000","#ffc100","#ffff00","#d6ff00","#63ff00","#00ff00"];
+                    {% for b in range(books|length) %}
+                        pointColors.push(ratingColors[parseInt("{{books[b].rating}}")]);
+                    {% endfor %}
+
                     var ctx = document.getElementById('PageCountChart');
                     var GenreFreqChart = new Chart(ctx, {
                         type: 'scatter',
                         data: {
                             labels: bookTitles,
                             datasets: [{
-                                label: 'Page Count vs Reading Time',
+                                label: ' Rating (green=5, red=1)',
                                 data: readTimeData,
                                 borderColor: "#dadada",
                                 backgroundColor: "rgba(0,0,0,0)",
                                 borderWidth: 1,
-                                trendlineLinear: {
-                                    style: "#dadada",
-                                    lineStyle: "dotted",
-                                    width: 2
+                                color: "#dadada",
+                                // trendlineLinear: {
+                                //     style: "#dadada",
+                                //     lineStyle: "dotted",
+                                //     width: 2
+                                // },
+                                pointBorderColor: function(context) {
+                                    var index = context.dataIndex;
+                                    return pointColors[index];
                                 }
                             }]
                         },
                         options: {
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: "#dadada"
+                                    }
+                                }
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItem, data) {
+                                        var label = data.labels[tooltipItem.index];
+                                        return ' ' + label + ': (' + parseInt(tooltipItem.yLabel/tooltipItem.xLabel) + ' pages/day)';
+                                    }
+                                }
+                            },
                             legend: {
-                                display: false
+                                display: true,
+                                labels: {
+                                    usePointStyle: true
+                                }
                             },
                             scales: {
                                 xAxes: [{
@@ -538,7 +561,7 @@
                                         display: true,
                                         labelString: 'Days Spent Reading',
                                         fontColor:'#dadada',
-                                        fontSize:18
+                                        fontSize: 18
                                     },
                                     ticks: {
                                         min: 1,
@@ -616,7 +639,13 @@
                         }
                     });
                 </script>
+                
             </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <p>stats</p>
             </div>
         </div>
     </div>
