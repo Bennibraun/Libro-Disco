@@ -644,8 +644,124 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <p>stats</p>
+            <div class="col-md-6" style="height: 60vh;">
+
+                <div class="chart-container" style="float: left; height:20vh; width:100%; padding-top:41px;">
+                    <canvas id="pubDateBarGraph"></canvas>
+                </div>
+                <script>
+
+                    function onlyUnique(value, index, self) {
+                        return self.indexOf(value) === index;
+                    }
+
+                    var pubYears = [];
+
+                    {% for b in range(books|length) %}
+                        pubYears.push(parseInt("{{books[b].pub_date}}"));
+                    {% endfor %}
+
+                    var uniqueYears = pubYears.filter(onlyUnique);
+
+                    function getCounts(arr) {
+                        var a = [],
+                            b = [],
+                            prev;
+
+                        arr.sort();
+                        for (var i = 0; i < arr.length; i++) {
+                            if (arr[i] !== prev) {
+                                a.push(arr[i]);
+                                b.push(1);
+                            } else {
+                                b[b.length - 1]++;
+                            }
+                            prev = arr[i];
+                        }
+
+                        return [a, b];
+                    }
+
+                    results = getCounts(pubYears);
+                    years = results[0];
+                    counts = results[1];
+
+
+                    var pubData = new Array(23).fill(0);
+                    for (var i=0; i<years.length; i++) {
+                        // Start at 1800, so subtract 180 for index
+                        pubData[parseInt(years[i] / 10) - 180] += 1;
+                    }
+                    var yearLabels = [];
+                    for (var i=0; i<pubData.length; i++) {
+                        yearLabels.push((180+i)*10);
+                    }
+                    console.log(pubData)
+                    console.log(yearLabels)
+
+                    var ctx = document.getElementById('pubDateBarGraph');
+                    var GenreFreqChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: yearLabels,
+                            datasets: [{
+                                label: '# of Books',
+                                data:  pubData,
+                                borderColor: "#dadada",
+                                backgroundColor: "rgba(0,0,0,0)",
+                                borderWidth: 1,
+                                color: "#dadada"
+                            }]
+                        },
+                        options: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: "Publication Year",
+                                fontColor: "#dadada",
+                                fontSize: 20,
+                                fontStyle: 'normal',
+                                fontFamily: 'Segoe UI'
+                            },
+                            scales: {
+                                xAxes: [{
+                                    display: true,
+                                    gridLines: { color: "rgba(0,0,0,0)", zeroLineColor: "rgba(0,0,0,0)" },
+                                    scaleLabel: {
+                                        display: false,
+                                        labelString: 'x axis label',
+                                        fontColor:'#dadada',
+                                        fontSize:10
+                                    },
+                                    ticks: {
+                                    fontColor: "#dadada",
+                                    fontSize: 12
+                                    }
+                                }],
+                                yAxes: [{
+                                    display: true,
+                                    gridLines: { color: "rgba(0,0,0,0)", zeroLineColor: "rgba(0,0,0,0)" },
+                                    scaleLabel: {
+                                        display: false,
+                                        labelString: 'y axis label',
+                                        fontColor: '#dadada',
+                                        fontSize:10
+                                    },
+                                    ticks: {
+                                        fontColor: "#dadada",
+                                        fontSize: 12
+                                    }
+                                }],
+                                title: {
+                                    color: "#dadada"
+                                }
+                            },
+                        }
+                    });
+                </script>
+                
             </div>
         </div>
     </div>
