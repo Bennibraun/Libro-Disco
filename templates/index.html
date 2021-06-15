@@ -261,6 +261,36 @@
             </table>
         </div>
         </div>
+        <div class="col-md-6 table-responsive" style="height: 38vh; border: none; overflow-x: unset; padding-left:20px;">
+            <table>
+                <tr>
+                    <td style="vertical-align: top;">
+                        <table class="table-list">
+                            <tr>
+                                <h3>Top Authors</h3>
+                            </tr>
+                            {% for i in range(10) %}
+                                <tr>
+                                    <h5>➼  <b>{{ stats['top_authors'][i][0] }} </b> -  <i>{{ stats['top_authors'][i][1] }} books</i></h5>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td style="vertical-align: top;"">
+                        <table class="table-list">
+                            <tr>
+                                <h3>Books by Year</h3>
+                            </tr>
+                            {% for key, value in stats['annual_count'].items() %}
+                                <tr>
+                                    <h5>➼  <b>{{ key }}: </b> <i>{{ value }} books</i></h5>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 
         <div class="row">
@@ -371,7 +401,7 @@
         <div class="row">
                 
             <div class="col-md-6" style="height: 60vh;">
-                <h3>Graphs & Stats</h3>
+                <h3>Graphs</h3>
 
                 
                 <div class="chart-container" style="float: left; height:20vh; width:100%; padding: 10px;">
@@ -719,7 +749,7 @@
                             },
                             title: {
                                 display: true,
-                                text: "Publication Year",
+                                text: "Publication Decade",
                                 fontColor: "#dadada",
                                 fontSize: 20,
                                 fontStyle: 'normal',

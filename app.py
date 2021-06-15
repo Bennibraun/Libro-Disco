@@ -587,11 +587,33 @@ def logout():
     return redirect('/')
 
 def fetch_stats():
-    stats = []
+    stats = {}
+
+    # Top Authors
+    cur.execute("""
+    SELECT author FROM books WHERE username='"""+rdb.get('currentUser').decode('utf-8')+"""';
+    """ )
+    authors = cur.fetchall()
+    for i in range(len(authors)):
+        authors[i] = authors[i][0].split(',')[0]
+    top_authors = Counter(authors).most_common(10)
+
+    # Books per Years
+    cur.execute("""
+    SELECT Date_started FROM books WHERE username='"""+rdb.get('currentUser').decode('utf-8')+"""';
+    """)
+    start_dates = cur.fetchall()
+    years = []
+    for y in start_dates:
+        years.append(y[0].year)
+    annual_count = Counter(years)
+    annual_count = sorted(annual_count.items())
+    annual_count.reverse()
+    annual_count = dict(annual_count)
 
     # Frequency of Genres
     cur.execute("""
-    SELECT genres FROM books;
+    SELECT genres FROM books WHERE username='"""+rdb.get('currentUser').decode('utf-8')+"""';
     """ )
     genres = cur.fetchall()
     genre_instances = []
@@ -599,13 +621,15 @@ def fetch_stats():
         genre_instances.extend(g[0].split(','))
     genre_counts = Counter(genre_instances)
     # print(genre_counts)
-    stats.append({'genre_freq_labels': genre_counts.keys()})
-    stats.append({'genre_freq_values': genre_counts.values()})
+    stats['genre_freq_labels'] = genre_counts.keys()
+    stats['genre_freq_values'] = genre_counts.values()
+    stats['top_authors'] = top_authors
+    stats['annual_count'] = annual_count
 
     # Timeline
 
 
-    return []
+    return stats
 
 
 if __name__ == "__main__":
